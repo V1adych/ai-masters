@@ -1,0 +1,140 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}  % For Cyrillic fonts
+\usepackage[utf8]{inputenc}  % For UTF-8 encoding
+\usepackage[russian]{babel}  % For Russian language support
+\usepackage{amssymb}
+\DeclareMathOperator{\tr}{tr}
+
+\title{Optimization 1 \\ Homework 2}
+\author{Nikita Zagainov}
+\date{September 2024}
+
+\begin{document}
+\section{Выпуклые функции}
+\begin{enumerate}
+    \item Если $f(x)$ - выпуклая, а $g(x)$ - выпкуклая и неубывающая, то $g(f(x))$ - выпукла. возьмём логарифм от исходной функции:
+          $$
+              \log(f(x)) = \sum_{i=1}^{n}{\lambda_i\log(1-e^{-x_i})}
+          $$
+          проверим выпуклость функции, взяв гессиан:
+          $$
+              H_{ij} = \begin{cases}
+                  0, \ \text{if} \ i \neq j \\
+                  \frac{-\lambda_i e^{-x_i}}{(1-e^{-x_i})^2}, \  \text{if} \ i = j
+              \end{cases}
+          $$
+          $-H_{ij}$ - положительно определён, значит, данная функция вогнута.
+
+    \item $\lVert \mathbf{A} \mathbf{x} - \mathbf{b} \rVert_2$ - выпукла, так как $\lVert \mathbf{x} \rVert_2$ выпукло по неравенству треугольника, и если $f(\mathbf{x})$ - выпукло, то $f(\mathbf{A} \mathbf{x} - \mathbf{b})$ тоже выпукло.
+          $\lVert \mathbf{x} \rVert_{\infty}$ - выпукло: $\lVert \mathbf{x} \rVert_{\infty} = \max_{i}{x_i}$ - выпуклая функция, так как максимум из нескольких выпуклых функций - выпуклая функция.
+
+    \item Возьмем вторую производную:
+          $$
+              \frac{d^2f(x)}{dx^2} = \frac{1}{x}\frac{df(x)}{dx} - \frac{2}{x^2}f(x) + \frac{2}{x^3}\int_0^x{f(x)dx}
+          $$
+          Для $f(x) = x^2$ она приниает значение $\frac{2}{3} > 0$, при $f(x) = x^{-2}$ она принимает значение $-6x^{-4} < 0$, то есть нельзя про данную функцию сказать, что она выпуклая или вогнутая.
+
+    \item Достаточно проверить на выпуклость функцию $\lambda_i(\mathbf{X})$ для любого $i$, так как исходная функция является максимумом по различным перестановкам $i_1, \ i_2, \ i_3 \ ...$ от суммы функций $\lambda_{i_k}(\mathbf{X})$. Без потери общности рассмотрим функцию $\lambda_1(\mathbf{X})$ Перейдём к рассмотрению функции $\lambda_1(\mathbf{U} + \mathbf{V}t), \ \mathbf{U} \in \mathbf{S}^n, \ \mathbf{V} \in \mathbf{S}^n, \ \mathbf{U} + \mathbf{V}t \in \mathrm{dom}(f)$.
+          $$
+              \lambda_1(\mathbf{U} + \mathbf{V}t) = \lambda_1(\mathbf{U}) + t\lambda_1(\mathbf{V})
+          $$
+          Полученная функция линейна, и следовательно, выпукла относительно $t$. Таким образом, данная функция выпукла как максимум из сумм выпуклых функций.
+
+    \item Перейдем к рассмотрению функции $\mathrm{det}(\mathbf{U} + \mathbf{V}t)^{\frac{1}{n}}$, где $\mathbf{U} \in \mathbf{S}_{++}^n, \ \mathbf{V} \in \mathbf{S}^n, \ \mathbf{U} + \mathbf{V}t \in \mathrm{dom}(f)$.
+          \begin{align*}
+               & \mathrm{det}(\mathbf{U} + \mathbf{V}t)^{\frac{1}{n}} =                                                                                                             \\
+               & \mathrm{det}(\mathbf{U}^{\frac{1}{2}}(\mathbf{I} + t\mathbf{U}^{-\frac{1}{2}}\mathbf{V}\mathbf{U}^{-\frac{1}{2}})\mathbf{U}^{\frac{1}{2}})^{\frac{1}{n}} =         \\
+               & (\mathrm{det}(\mathbf{U}) \mathrm{det}(\mathbf{I} + t\mathbf{U}^{-\frac{1}{2}}\mathbf{Q}\mathbf{\Lambda}\mathbf{Q}^\top\mathbf{U}^{-\frac{1}{2}}))^{\frac{1}{n}} = \\
+               & (\mathrm{det}(U) \sum_{i=1}^n{(1 + t\lambda_i)})^\frac{1}{n}
+          \end{align*}
+          Функция в основании степени - линейная, а так как степень $\frac{1}{n} < 1$, то функция вогнутая.
+
+    \item
+          $-\log(t^2 - x^\top x)$ - композиция функций $f(g(x)), \ f(x) = -\log(x), \ g(x, t) = t^2 - x^\top x$, функция $f(x)$ - выпуклая и неубывающая на области определения, а значит, исходная функция имеет ту же выпуклость, что и функция $g(x)$.
+          Найдём гессиан этой функции:
+          $$
+              H_{ij} =
+              \begin{cases}
+                  -2, & \text{if } 1 \leq i = j \leq n, \\
+                  2,  & \text{if } i = j = n+1,         \\
+                  0,  & \text{otherwise}
+              \end{cases}
+          $$
+          $-H$ - положительно определён, значит, исходная функция вогнута.
+
+    \item
+
+\end{enumerate}
+\section{Кратчайший путь в графе}
+Функция $p_{ij}(c)$ может быть выражена как
+$$
+    \min_{t \in T_{ij}}{c^\top t} = -\max_{t \in T_{ij}}{-c^\top t}
+$$
+где $T_{ij}$ - множество всех траекторий из вершины $i$ в вершину $j$, $t$ - бинарный вектор обозначающий включение или исключение каждого ребра в траектории. Таким образом, данная функция является максимумом из всех возможных длин траекторий, которые являются линейными функциями, следовательно, выпуклыми, а минус максимум из них - вогнутая.
+
+\section{Расстояния между вероятностными распределениями}
+\begin{enumerate}
+    \item
+          \begin{itemize}
+              \item[(a)]
+                  Возьмём гессиан функции $p_i \log{\frac{p_i}{q_i}}$:
+                  $$
+                      H =
+                      \begin{bmatrix}
+                          \frac{1}{p_i}  & -\frac{1}{q_i}    \\
+                          -\frac{1}{q_i} & \frac{p_i}{q_i^2}
+                      \end{bmatrix}
+                  $$
+                  Он неотрицательно определён, определители миноров: $\mathrm{det}_1 = \frac{1}{p_i}, \ \mathrm{det}_2 = 0$. Таким образом, данная функция - выпуклая.
+
+              \item[(b)]
+                  Докажем, что $D_{KL}(p \ \| \ q) = 0 \implies p \equiv q$ почти всюду:
+                  $$
+                      \sum_{i=1}^n p_i\log{\frac{p_i}{q_i}} \geq \log \left( \sum_{i=1}^n q_i \right) = 0
+                  $$
+                  По неравенству Йенсена, если взять выпуклую $-\log(x)$ за функцию. Равенство выполняется только при равенстве аргументов $\frac{p_i}{q_i}$, то есть, только при  $p \equiv q$ почти всюду.
+
+                  Докажем, что $p \equiv q \implies D_{KL}(p \ \| \ q) = 0$:
+                  $$
+                      \sum_{i=1}^n p_i\log{\frac{p_i}{q_i}} = \sum_{i=1}^n p_i\log{1} = 0
+                  $$
+
+              \item[(c)]
+                  \begin{align*}
+                        & D_{KL}(p \ \| \ q) =                        \\
+                        & \sum_{i+1}^n p_i \log{\frac{p_i}{q_i}} =    \\
+                      - & \sum_{i+1}^n p_i \log{\frac{q_i}{p_i}} \geq \\
+                      - & \sum_{i+1}^n p_i (\frac{q_i}{p_i} - 1) =    \\
+                      - & \sum_{i+1}^n (p_i - q_i) =                  \\
+                      - & 1 + 1 = 0
+                  \end{align*}
+                  Где неравенство справедливо из факта, что для $x > 0$ выполняется $x - 1 > \log{x}$
+
+              \item[(d)]
+                  Пусть $p = [0.5, 0.5], \ q = [0.25, 0.75]$, Тогда
+                  \begin{align*}
+                       & D_{KL}(p \ \| \ q) = 0.5\log{2} + 0.5\log{\frac{2}{3}} \approx 0.55              \\
+                       & D_{KL}(q \ \| \ p) = 0.25\log{\frac{1}{2}} + 0.75\log{\frac{3}{2}} \approx -0.48
+                  \end{align*}
+
+                  Этот контрпример доказывает утверждение, что дивергенция асимметричная.
+          \end{itemize}
+
+    \item
+          $$
+              \sum_{i=1}^n (\sqrt{p_i} - \sqrt{q_i})^2 = \sum_{i=1}^n p_i + q_i - 2\sqrt{p_i q_i} = 2 - 2\sum_{i=1}^n \sqrt{p_i q_i}
+          $$
+          Докажем, что $-\sqrt{p_i q_i}$ - выпуклая функция, тогда исходная функция выпукла как сумма выпуклых функций. Гессиан $-\sqrt{p_i q_i}$:
+          $$
+              H =
+              \begin{bmatrix}
+                  \frac{q_i^{0.5}}{2p_i^{1.5}} & -\frac{1}{4(p_i q_i)^{0.5}}  \\
+                  -\frac{1}{4(p_i q_i)^{0.5}}  & \frac{p_i^{0.5}}{2q_i^{1.5}}
+              \end{bmatrix}
+          $$
+          Гессиан неатрицательно определён, определители миноров: $\frac{q_i^{0.5}}{2p_i^{1.5}}$, $\frac{3}{16p_i q_i}$. Таким образом, исходная функция выпукла.
+\end{enumerate}
+
+\end{document}

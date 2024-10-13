@@ -1,0 +1,238 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}  % For Cyrillic fonts
+\usepackage[utf8]{inputenc}  % For UTF-8 encoding
+\usepackage[russian]{babel}  % For Russian language support
+\usepackage{amssymb}
+\DeclareMathOperator{\tr}{tr}
+
+\title{Optimization 1 \\ Homework 1}
+\author{Nikita Zagainov}
+\date{September 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Выпуклые множества}
+\begin{enumerate}
+    \item Предположим противное. Для выпуклых множеств справедливо
+          \[
+              ax + (1-a)y \in C \quad \text{if} \quad x \in C \ , \ y \in C \ , \ a \in [0, 1]
+          \]
+          На любой прямой, пересекающей это множество, на пересечении любые пары $x$, $y$ удовлетворяют условию. В обратном направлении: Для любого выпуклого множества существуют $x$, $y$ и $a$ такие, что условие не удовлетворено, и существует прямая, проходящая через $x$ и $y$.
+
+    \item
+          (a) Гиперплоскость в перспективной проекции остаётся гиперплоскостью. Для точки \( (x, t) \) будет новая координата:
+
+          \[
+              P(x, t) = \left(\frac{x}{t}, 1\right).
+              \label{Helo}
+          \]
+
+          Таким образом, если рассмотреть точки из гиперплоскости \( a^\top x + ct = \gamma \), после перспективного отображения уравнение гиперплоскости примет вид:
+
+          \[
+              a^\top \frac{x}{t} + c = \frac{\gamma}{t}.
+          \]
+
+          (b) Полупространство в перспективной проекции остаётся полупространством. Для отображения точки \( (x, t) \) получаем:
+
+          \[
+              P(x, t) = \left(\frac{x}{t}, 1\right),
+          \]
+
+          и неравенство для полупространства становится:
+
+          \[
+              a^\top \frac{x}{t} + c \leq \frac{\gamma}{t}.
+          \]
+
+    \item Любой элемнт конической оболочки множества
+          \[
+              \{XX^\top \ | \ X \in R^{n \times k}, \ rank(X) = k\}
+          \]
+          является линейной комбинацией из положительно полуопределенных матриц размера $n \times n$ и ранга $k$. Следовательно, коническую оболочку можно описать как
+          \[
+              \{A \ | \ A \in R^{n \times n}, \ rank(A) \leq k, \ A \succeq 0\}
+          \]
+
+    \item Необходимость совпадения опорных функций при равенстве множеств очевидна. Докажем дочтатаочность. Из
+          \[
+              \sup_{x \in C_1} y^\top x = \sup_{x \in C_2} y^\top x
+          \]
+          Следует, что
+          \[
+              C1 \subseteq C2,
+          \]
+          Так как тогда для любой точки $x_0 \in C_1$ справедливо, что
+          \[
+              y^\top x_0 \leq s_{C_1}(y) = s_{C_2}(y)
+          \]
+          для всех $y$. Следовательно, для любого $x \in C_1$ справедливо $x \in C_2$.
+
+          Аналогично доказывается, что
+          \[
+              C_2 \subseteq C1
+          \]
+
+          Из утврерждений выше следует, что
+          \[
+              C_1 = C_2
+          \]
+          Достаточность доказана.
+
+    \item[5 (старое).]
+        Необходимо доказать, что для любых $x_1$, $x_2$ и $\alpha \in [0, 1]$ выполняется
+        \[
+            (\alpha x_1 + (1 - \alpha x_2)A(\alpha x_1 + (1 - \alpha x_2) \leq (c^\top (\alpha x_1 + (1 - \alpha x_2))^2
+        \]
+        Раскроем скобки:
+        \begin{align*}
+             & \alpha^2 x_1^\top A x_1 + 2\alpha(1-\alpha)x_1^\top A x_2 + (1 - \alpha)^2 x_2^\top A x_2 \leq    \\
+             & \alpha^2(c^\top x_1)^2 + 2\alpha(1-\alpha)(c^\top x_1)(c^\top x_2) + (1 - \alpha)^2(c^\top x_2)^2
+        \end{align*}
+        Причем известно из условий, что
+        \[
+            \alpha^2 x_1^\top A x_1 \leq \alpha^2(c^\top x_1)^2
+        \]
+        и
+        \[
+            (1 - \alpha)^2 x_2^\top A x_2 \leq (1 - \alpha)^2(c^\top x_2)^2
+        \]
+        По неравенству Коши-Буняковского, имеем:
+        \[
+            2\alpha(1-\alpha)x_1^\top A x_2 \leq 2\alpha(1-\alpha)
+            \sqrt{(x_1^\top A x_1)(x_2^\top A x_2)} \leq 2\alpha(1-\alpha)(c^\top x_1)(c^\top x_2)
+        \]
+        Из условия,
+        \[
+            c^\top x_1 > 0, \ c^\top x_2 > 0
+        \]
+        Таким образом, данное множество выпукло.
+    \item[5.]
+        Данное множество эквивалентно
+        $$
+            \bigcap_{y \in S} \{x \in \mathbb{R}^n \ | \ \lVert x - x_0 \rVert_2 \leq \lVert x - y \rVert_2\}
+        $$
+        Каждое множество из этого пересечения представляет из себя полупространство
+        $$
+            \langle x - \frac{y - x_0}{2}, y - x_0 \rangle \leq 0
+        $$
+        Полупространство - выпуклое множество. Так как каждое множество из данного пересечения множеств выпукло, то это множество тоже выпукло.
+\end{enumerate}
+
+\section{Двойственные конусы}
+\begin{enumerate}
+    \item Для точки $(x, \ y, \ z)$, принадлежащей конусу $\mathcal{K}$, точка $\theta (x, \ y, \ z)$ принадлежит этому конусу при любых $\theta > 0$.
+          \begin{align*}
+               & \theta y^{\frac{\theta x}{\theta y}} \leq \theta z \\
+               & \theta y^{\frac{x}{y}} \leq \theta z               \\
+               & y^{\frac{x}{y}} \leq z
+          \end{align*}
+          что входит в данный конус.
+
+          Найдем замыкание.
+          Рассмотрим все предельные случаи ($y = 0$):
+          \begin{align*}
+               & \text{(1)} \ x > 0, \ y \to 0 \implies z \to \infty \\
+               & \text{(2)} \ x < 0, \ y \to 0 \implies z >= 0       \\
+               & \text{(3)} \ x = 0, \ y \to 0 \implies z >= 0
+          \end{align*}
+          Таким образом, замыкание данного конуса:
+          \[
+              \overline{\mathcal{K}} = \{(x, \ y, \ z), \ \text{if} \ y > 0 \ , \ ye^{\frac{y}{x}} \leq z\} \cup \{x \leq 0, \ y = 0, \ z \geq 0\}
+          \]
+
+          Найдём конус $\mathcal{K}^* = \{(x^*, \ y^*, \ z^*) \ | \ xx^* + yy^* + zz^* \geq 0\}$. Заметим, что в оригинальном конусе $z$ не ограничено сверху, следовательно $z^* \geq 0$. Тогда справедливо, что
+          \[
+              xx^* + yy^* + zz^* \geq xx^* + yy^* + ye^{\frac{x}{y}}z^*
+          \]
+          \begin{align*}
+               & xx^* + yy^* + ye^{\frac{x}{y}}z^* \geq 0
+          \end{align*}
+          Поделим обе части неравенства на $y$ и сделаем замену $w = \frac{x}{y}$:
+          \begin{align*}
+              tx^* + y^* + e^tz^* \geq 0
+          \end{align*}
+          При $t \to 0$ выражение принимает вид $y^* + z^* \geq 0$. Так как $t$ не ограничено снизу, $x^* \leq 0$. Тогда чтобы найти границы $y^*$ рассмотрим минимум этой функции в зависимости от $t$:
+          \[
+              \frac{df(t)}{dt} = x^* + e^tz^* = 0
+          \]
+          Откуда $t = \ln{(-\frac{x^*}{z^*})}$, в этой точке значение функции:
+          \[
+              x^*\ln{(-\frac{x^*}{z^*})} + y^* - x^* \geq 0
+          \]
+          Откуда $y \geq x^*(1 - \ln{(-\frac{x^*}{z^*})})$
+          Получаем:
+          \[
+              \mathcal{K}^* = \{(x^*, \ y^*, \ z^*) \ | \ x^* \leq 0, \ z^* \geq 0, \ y \geq x^*(1 - \ln{(-\frac{x^*}{z^*})})\}
+          \]
+    \item Докажем, что данное множество - выпуклый конус. Пусть $X_1$ и $X_2$ принадлежат множеству, тогда по определению множеству принадлеит $\theta_1 X_1 + \theta_2 X_2$ для любых $\theta_1 > 0, \ \theta_2 > 0$. Первое условие: эта матрица симметрична, так как является суммой симметричных матриц. Второе условие:
+          \begin{align*}
+               & y^\top (\theta_1 X_1 + \theta_2 X_2) y \geq 0, \ \forall y \geq 0                                \\
+               & y^\top \theta_1 X_1 y \geq 0, \ y^\top \theta_2 X_2 y \geq 0, \ \forall y \geq 0 \ \text{- True}
+          \end{align*}
+          Это множество замкнуто: Рассмотрим последовательность матриц $X_n$, входящих в это множество и сходящуюся к матрице $X$. Эта матрица также входит в данное множество, так как в неравенстве $y^\top Xy \geq 0, \ \forall y \geq 0$ нет выколотых точек.
+
+          Докажем, что этот конус является двойственным для самого себя. Возьмем произвольную матрицу $Y, \ Y \succ 0$, тогда по предположению
+          \[
+              \tr(X^\top Y) > 0
+          \]
+          Так как $X \succ 0$, справедливо
+          \[
+              X = Q^T \Lambda Q = \sum_{i}{\lambda_i q_i q_i^\top}, \ \lambda_i >= 0
+          \]
+          Тогда
+          \[
+              \tr(X^\top Y) = \tr(Y \sum_{i}{\lambda_i q_i q_i^\top}) = \sum_{i}{\lambda_i q_i^\top Y q_i} \geq 0
+          \]
+          По положительной полуопределенности $Y$.
+          Мы доказали, что $S_{+}^{n \times n} \subseteq \mathcal{K}^{*}$. Теперь докажем $S_{+}^{n \times n} = \mathcal{K}^{*}$:
+          Допустим, что существует $Y$ такое, что $Y \in \mathcal{K}^*, \ Y \notin S_{+}^{n \times n}$. Тогда $\exists i, \ \lambda_i < 0$ в спектральном разложении $Y$. Тогда возьмем $X = q_i q_i^\top$. Скалярное произведение будет равно
+          \[
+              \tr(X^\top Y) = \tr(q_i q_i^\top Y) = \lambda_i < 0
+          \]
+          Пришли к противоречию, следовательно,
+          \[
+              \mathcal{K}^{*} = S^{n \times n}_{+}
+          \]
+    \item
+          Докажем, что данное множество - выпуклый конус. Предоложим, что $\textbf{x}_1$ и $\textbf{x}_2$ принадлежат данному множеству:
+          \begin{align*}
+               & x_1^1 \geq x_2^1 \geq x_3^1 \ ... \ x_n^1, \ \text{for all} \ x_i^1 \in \textbf{x}_1 \\
+               & x_1^2 \geq x_2^2 \geq x_3^2 \ ... \ x_n^2, \ \text{for all} \ x_i^2 \in \textbf{x}_2
+          \end{align*}
+          тогда для любых $\theta_1, \ \theta_2 > 0$ Справедливо:
+          \[
+              \theta_1 x_1^1 + \theta_2 x_1^2 \geq \theta_1 x_2^1 + \theta_2 x_2^2 \geq \theta_1 x_3^1 + \theta_2 x_3^2 \ ... \ \theta_1 x_n^1 + \theta_2 x_n^2
+          \]
+          То есть, $\theta_1 \textbf{x}_1 + \theta_2 \textbf{x}_2$ принадлежит данному множеству. Следовательно, данное множество - выпуклый конус.
+
+          Найдем двойственный конус, итеративно рассматривая различные $x \in \mathcal{K}, \ y \in \mathcal{K}^*$
+          \begin{enumerate}
+              \item $x_1 \geq 0, \ x_i = 0, \ i > 1$,
+                    тогда для справедливости $\langle x, \ y\rangle \geq 0$ должно выполняться $y_1 \geq 0$
+              \item $x_1 \geq x_2 \geq 0, \ x_i = 0, \ i > 2$?
+                    тогда для справедливости $\langle x, \ y\rangle \geq 0$ должно выполняться $y_1 + y_2 \geq 0$
+          \end{enumerate}
+          Следуя аналогичной логике на каждом шаге, получаем
+          \[
+              \mathcal{K}^* = \{y \ | \ \forall m \leq n \ \sum_i^m{y_i} \geq 0\}
+          \]
+
+    \item
+          Так как $\mathcal{K}_1$ и $\mathcal{K}_2$ - выпуклые, то существует разделяющая плоскость $\langle x, \ y \rangle, \ y \neq 0$, такая что
+          \begin{align*}
+               & \langle x, \ y \rangle \geq 0 \ \text{for all} \  x \in \mathcal{K}_1 \\
+               & \langle x, \ y \rangle \leq 0 \ \text{for all} \ x \in \mathcal{K}_2
+          \end{align*}
+          Утверждение $\langle x, \ y \rangle \geq 0 \ \text{for all} \  x \in \mathcal{K}$ равносильно $y \in \mathcal{K}^{*}$, следовательно, выбранное $y$ выполняет следующие условия:
+          \[
+              y \in \mathcal{K}_1^*, \ -y \in \mathcal{K}_2^*
+          \]
+
+\end{enumerate}
+
+\end{document}

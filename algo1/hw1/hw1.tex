@@ -1,0 +1,57 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}  % For Cyrillic fonts
+\usepackage[utf8]{inputenc}  % For UTF-8 encoding
+\usepackage[russian]{babel}  % For Russian language support
+
+\title{Algorithms 1 \\ Homework 1}
+\author{Nikita Zagainov}
+\date{September 2024}
+
+\begin{document}
+
+\maketitle
+\section{Asymptotic complexity}
+\begin{enumerate}
+    \item
+          \begin{enumerate}
+              \item[1.]
+                  (a) Да, возможно. При
+                  \begin{align*}
+                       & f(n) = \Theta(n^2),              \\
+                       & g(n) = \Theta(\frac{n}{\log{n}})
+                  \end{align*}
+                  выполняется
+                  \[
+                      h(n) = \Theta{(n\log{n})}
+                  \]
+                  (b) Нет, невозможно. Для увеличения асимптотической оценки $h(n)$ нужно взять максимально быстрорастущий $f(n) = \Theta(n^2)$ и минимально быстрорастущийй $g(n) = \Theta(1)$, но это даёт только $h(n) = \Theta(n^2)$, и это максимальное значение.
+              \item[2.]
+                  По аналогичным рассуждениям с 1.1.b, получем следующюю верхнюю оценку:
+                  \begin{align*}
+                       & h(n) = \Theta(n^2), \ \text{if} \ f(n) = \Theta(n^2), \ g(n) = \Theta(1)
+                  \end{align*}
+                  Нижней асимптотической границы у $h(n)$, так как её нет у функции $f(n)$.
+          \end{enumerate}
+    \item
+          \[
+              \sqrt{i^3 + 2i + 5} = i^{\frac{3}{2}}\Theta(1 + \frac{1}{i})
+          \]
+          Следовательно,
+          \[
+              \sum_{i=1}^{n}{\sqrt{i^3 + 2i + 5}} = \Theta{(\int_0^n{i^{\frac{3}{2}}di})} = \Theta(\frac{2}{5}x^{\frac{5}{2}}) = \Theta(x^{\frac{5}{2}})
+          \]
+    \item
+          Мы рассматриваем случаи, когда $\alpha > 0$, то есть, когда $\sum_{i=1}^{n}{i^{\alpha}} \to \infty, \ \text{if} \ i \to \infty$
+          \begin{align*}
+               & \sum_{i=1}^{n}{i^{\alpha}} = \Theta(\int_0^n{i^{\alpha} di}) = \Theta(\frac{1}{1 + \alpha}n^{\alpha + 1}) = \Theta(n^{\alpha + 1})
+          \end{align*}
+
+    \item
+          \begin{align*}
+               & \sum_{k=1}^{n}{\frac{1}{k}} = \Theta(\int_1^n{\frac{1}{k} dk}) = \Theta(\log{n})
+          \end{align*}
+\end{enumerate}
+
+\end{document}

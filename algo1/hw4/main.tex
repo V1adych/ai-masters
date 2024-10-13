@@ -1,0 +1,249 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}  % For Cyrillic fonts
+\usepackage[utf8]{inputenc}  % For UTF-8 encoding
+\usepackage[russian]{babel}  % For Russian language support
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{mathtools}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+    language=Python,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{dkgreen},
+    stringstyle=\color{mauve},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3
+}
+\title{Algorithms 1 \\ Homework 4}
+\author{Nikita Zagainov}
+\date{October 2024}  % Automatically display the current month and year
+
+\begin{document}
+
+\maketitle
+
+\section{Sorting, Ordinal statistics}
+\begin{enumerate}
+    \item
+          Чтобы эффективно находить количество уникальных
+          элементов в объединении трех отсортированных
+          массивов, можно хранить три указателя на каждый массив,
+          а также по элементу, обозначающему последний элемент,
+          встреченный в каждом массиве. На каждом шаге будем
+          выбирать указатель, соответствующий минимальному
+          из трех элементов, на который указывают все указатели,
+          и проверять, соответствует ли этот элемент одному
+          из последних элеиментов, которые мы храним.
+          Если нет, то увеличиваем счётчик, далее в
+          любом случае записываем этот элемент в последние
+          элементы.
+
+          \begin{lstlisting}[language=Python]
+def count_unique_elems(arr1: list, arr2: list, arr3: list) -> int:
+    arrs = [arr1, arr2, arr3]
+    ptrs = [0, 0, 0]
+    last_elems = [None, None, None]
+    counter = 0
+
+    while any(ptrs[i] < len(arrs[i]) for i in range(3)):
+        to_incr = min(
+            filter(lambda x: ptrs[x] < len(arrs[x]), range(3)),
+            key=lambda x: arrs[x][ptrs[x]],
+        )
+
+        if arrs[to_incr][ptrs[to_incr]] not in last_elems:
+            last_elems[to_incr] = arrs[to_incr][ptrs[to_incr]]
+            counter += 1
+
+        ptrs[to_incr] += 1
+
+    return counter
+    \end{lstlisting}
+
+          Доказательство корректности:
+
+          Каждый уникальный элемент будет добавлен хотя бы один раз,
+          так как все три указателя полностью проходятся по
+          массивам, и не добавить некий элемент алгоритм может
+          только в случае, если такой элемент уже встречался.
+
+          Ни один элемент не будет добавлен несколько раз.
+          Рассмотрим какой-то шаг алгоритма:
+          в $last\_elems$ указаны последние элементы из каждого
+          массива. Мы выбираем указатель, соответствующий минимальному
+          из трех элементов, на которые указывают все указатели.
+          Если элемент в выбранном массиве уже встречался, то он
+          гарантированно указан в одном из них. Противный случай ---
+          это когда этот элемент уже был рассмотрен, но был перезаписан
+          в $last\_elems$, но это противоречит алгоритму, так как он
+          на каждом шаге выбирает указатель, соответствующий минимальному
+          элементу.
+
+          Оценка:
+
+          Сложность этого алгоритма по времени --- $\Theta(n + m + k)$, так как
+          мы один раз проходимся по каждому из массивов. Сложность алгоритма
+          по памяти --- $\Theta(1)$, так как использование памяти не зависит от
+          величины входных массивов.
+
+    \item
+          Заметим, что количество инверсий равно количеству раз,
+          когда алгоритм сортировки меняет местами два элемента,
+          стоящих рядом в неотсортированном порядке. Тогда единственная
+          модификация в любой алгоритм сортировки для подсчёта инверсий ---
+          это просто подсчёт таких попарных замен
+
+          \begin{lstlisting}[language=Python]
+def count_inversions(arr):
+    temp_arr = arr.copy()
+    return merge_sort_and_count(arr, temp_arr, 0, len(arr) - 1)
+
+
+def merge_sort_and_count(arr, temp_arr, left, right):
+    inv_count = 0
+    if left < right:
+        mid = (left + right) // 2
+
+        inv_count += merge_sort_and_count(arr, temp_arr, left, mid)
+        inv_count += merge_sort_and_count(arr, temp_arr, mid + 1, right)
+
+        inv_count += merge_and_count(arr, temp_arr, left, mid, right)
+
+    return inv_count
+
+
+def merge_and_count(arr, temp_arr, left, mid, right):
+    left_ptr = left
+    right_ptr = mid + 1
+    write_ptr = left
+    inv_count = 0
+
+    while left_ptr <= mid and right_ptr <= right:
+        if arr[left_ptr] <= arr[right_ptr]:
+            temp_arr[write_ptr] = arr[left_ptr]
+            left_ptr += 1
+        else:
+            temp_arr[write_ptr] = arr[right_ptr]
+            right_ptr += 1
+            inv_count += mid - left_ptr + 1 # equivalent to pairwise swap of element on right_ptr with every element on its left
+        write_ptr += 1
+
+    while left_ptr <= mid:
+        temp_arr[write_ptr] = arr[left_ptr]
+        left_ptr += 1
+        write_ptr += 1
+
+    while right_ptr <= right:
+        temp_arr[write_ptr] = arr[right_ptr]
+        right_ptr += 1
+        write_ptr += 1
+
+    for left_ptr in range(left, right + 1):
+        arr[left_ptr] = temp_arr[left_ptr]
+
+    return inv_count
+        \end{lstlisting}
+          Доказательство:
+
+          Этот алгоритм корректен по причинам, названным выше.
+          Алгоритм представляет собой модификацию алгоритма сортировки
+          с подсчётом парных замен.
+
+          Оценка:
+
+          Сложность этого алгоритма по времени:
+          $\Theta(n \log n)$
+          по мастер-теореме $T(n) = 2T(\frac{n}{2}) + n$.
+          Сложность по памяти: $\Theta(n)$, так как данный алгоритм
+          создаёт копию входного массива.
+
+    \item
+          Для решения этой задачи можно один раз проитерироваться
+          по всем точкам, для каждой определяя количество прямых,
+          покрывающих эту точку. Это можно сделать следующим образом:
+          \begin{itemize}
+              \item Отсортировать координаты концов каждого отрезка,
+                    поставить им в соответствие флаг,
+                    определяющий, правый или левый это конец
+              \item Пробежаться по концам слева направо,
+                    постоянно обновляя счётчик, показывающий
+                    количество покрывающих отрезков
+              \item Отрезки, подходящие под требования, записывать
+                    в массив
+          \end{itemize}
+
+          \begin{lstlisting}[language=Python]
+from math import ceil
+
+
+def covered_point_set(segments: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    req_coverage = ceil(2 * len(segments) / 3)
+    ends = sorted(
+        [(segment[0], 1) for segment in segments]
+        + [(segment[1], -1) for segment in segments]
+    )
+    answer = []
+
+    cur_coverage = 0
+    cur_segment_start = None
+
+    for end in ends:
+        cur_coverage += end[1]
+        if cur_coverage == req_coverage:
+            if cur_segment_start is None:
+                cur_segment_start = end[0]
+
+        elif cur_segment_start is not None:
+            answer.append((cur_segment_start, end[0]))
+            cur_segment_start = None
+
+    if cur_segment_start is not None:
+        answer.append((cur_segment_start, ends[-1][0]))
+
+    return answer
+          \end{lstlisting}
+
+          Доказательство:
+
+          Этот алгоритм корректен, так как для каждой точки
+          множества он хранит точное число покрывающих ее отрезков.
+
+          Оценка:
+
+          Сложность этого алгоритма по времени: $\Theta(n \log n)$,
+          так как он один раз проходится по каждому из $2n$ концов
+          отрезков, предварительно их отсортировав. Сложность
+          алгоритма по памяти: $\Theta(n)$, так как он создаёт
+          дополнительный массив из концов, и его размер линейно
+          зависит от размера входного массива.
+
+    \item Решением данной задачи является медиана входного массива.
+          Докажем, что это так: Если число $s = \mathrm{med}(a)$, тогда
+          если уменьшить или увеличить $s$ на некую малую величину
+          $\epsilon$, то целевая функция уменьшится на $\epsilon n$
+          за счёт приближения $n$ элементам массива, и увеличится на
+          $\epsilon (n + 1)$ за счёт удаления от $n + 1$ элементов.
+          При увеличении $s$ на достаточно большое значение, чтобы
+          оно соответствовало или превосходило элемент, больший
+          медианы или уменьшении до элемента, меньшего медианы,
+          целевая функция возрастёт больше, чем на $\epsilon$.
+
+          Тогда задача решается поиском медианы с помощью черного
+          ящика, и сложность этого алгоритма по времени: $\Theta(n)$.
+\end{enumerate}
+\end{document}

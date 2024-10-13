@@ -1,0 +1,126 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}  % For Cyrillic fonts
+\usepackage[utf8]{inputenc}  % For UTF-8 encoding
+\usepackage[russian]{babel}  % For Russian language support
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{mathtools}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{gray},
+    morekeywords={self},
+    frame=single,
+    breaklines=True
+}
+
+\title{Algorithms 1 \\ Homework 2}
+\author{Nikita Zagainov}
+\date{September 2024}
+
+\begin{document}
+
+\maketitle
+\section{Complexities, Fast Power, Fibonacci}
+\begin{enumerate}
+    \item
+          \[
+              13_{10} = 1101_{2}
+          \]
+          Применим алгоритм быстрого возведения в степень шаг за шагом, начиная с состояния $curr = 1$.
+          \begin{enumerate}
+              \item[1.] $b = 1$, $curr = curr^2 \cdot 7 \mod 167 = 7$
+              \item[2.] $b = 1$, $curr = curr^2 \cdot 7 \mod 163 = 17$
+              \item[3.] $b = 0$, $curr = curr^2 \mod 163 = 119$
+              \item[4.] $b = 1$, $curr = curr^2 \cdot 7 \mod 163 = 143$
+          \end{enumerate}
+    \item Для поиска членов последовательности Фиббоначи для $k > 0$ от $F_0 = 0$ и $F_1 = 1$, можно пользоваться этой формулой:
+          \[
+              \begin{bmatrix}
+                  F_{k+1} \\
+                  F_{k}
+              \end{bmatrix}
+              =
+              \begin{bmatrix}
+                  1 & 1 \\
+                  1 & 0
+              \end{bmatrix}
+              \begin{bmatrix}
+                  F_{k} \\
+                  F_{k-1}
+              \end{bmatrix}
+              =
+              \begin{bmatrix}
+                  1 & 1 \\
+                  1 & 0
+              \end{bmatrix}^k
+              \begin{bmatrix}
+                  1 \\
+                  0
+              \end{bmatrix}
+          \]
+          Для поиска членов при $k < 0$ справедливо:
+          \[
+              \begin{bmatrix}
+                  F_{k} \\
+                  F_{k-1}
+              \end{bmatrix}
+              =
+              \begin{bmatrix}
+                  1 & 1 \\
+                  1 & 0
+              \end{bmatrix}^{-1}
+              \begin{bmatrix}
+                  F_{k+1} \\
+                  F_{k}
+              \end{bmatrix}
+              =
+              \begin{bmatrix}
+                  1 & 1 \\
+                  1 & 0
+              \end{bmatrix}^{k}
+              \begin{bmatrix}
+                  1 \\
+                  0
+              \end{bmatrix}
+          \]
+          То есть, даже для $k < 0$ данная формула применима
+
+    \item Для решения задачи следует отсортировать котов по возрастанию массы.
+          \begin{lstlisting}
+    def insertion_sort(cats):
+        for i in range(1, len(cats)):
+            cur_mass = cats[i].mass
+            j = i - 1
+            while j >= 0 and cur_mass < cats[j].mass:
+                cats[j + 1] = cats[j]
+                j -= 1
+            cats[j + 1] = key
+
+        return cats
+    \end{lstlisting}
+          Этот алгоритм вернет массив из котов, отсортированных по возрастанию массы. Докажем, что он корректен математической индукцией. Предположим, что на каждой итерации первые $i$ элементов расположены в порядке возрастания. Очевидно, это правда для момента $i = 1$. Шаг индукции: предположим, что это свойство верно для $i = k$, тогда на переходе к $i = k + 1$ это свойство сохраняется, так как алгоритм берет $k + 1$ элемент и передвигает его в отсортированную часть массива, попарно сравнивая с каждым элементом по пути, пока элемент слева не окажется меньше. Таким образом, этот алгоритм корректен.
+
+          Этот алгоритм имеет сложность $\Theta(n^2)$ где $n$ - количество котов, так как он имеет два вложенных цикла, итерирующих по всему массиву.
+
+    \item
+          \[
+              f(n) = \sum_{k=0}^{n}{n \choose k} = \sum_{k=0}^{n}{n \choose k}1^{k}1^{n-k} = (1 + 1)^n = 2^n
+          \]
+    \item Пусть $g(n)$ - количество ``heh'', который напечатает вызов $f(n)$
+          \begin{align*}
+               & g(n) =                                                                                                                                                      \\
+               & \sum_{i=1}^{\lfloor \log_2{n} \rfloor}{\sum_{j=0}^{2^{3i} - 1}{1}} + \sum_{i=1}^{\lfloor \frac{n}{2} \rfloor}{\sum_{j=0}^{(2i + 1)^2 - 1}{1}} =             \\
+               & \sum_{i=1}^{\lfloor \log_2{n} \rfloor}{2^{3i}} + \sum_{i=1}^{\lfloor \frac{n}{2} \rfloor}{(2i + 1)^2} =                                                     \\
+               & \frac{2^{3\lfloor \log_2{n} \rfloor} + 8}{2} \lfloor \log_2{n} \rfloor + \frac{(2\lfloor \frac{n}{2} \rfloor + 1) ^ 2 + 1}{2} \lfloor \frac{n}{2} \rfloor = \\
+               & \Theta(n^3\log{n} + n^3) =                                                                                                                                  \\
+               & \Theta(n^3\log{n})
+          \end{align*}
+\end{enumerate}
+
+\end{document}

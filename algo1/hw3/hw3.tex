@@ -1,0 +1,86 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}  % For Cyrillic fonts
+\usepackage[utf8]{inputenc}  % For UTF-8 encoding
+\usepackage[russian]{babel}  % For Russian language support
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{mathtools}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{gray},
+    morekeywords={self},
+    frame=single,
+    breaklines=True
+}
+
+\title{Algorithms 1 \\ Homework 3}
+\author{Nikita Zagainov}
+\date{September 2024}
+
+\begin{document}
+
+\maketitle
+\section{Sorting, Recurrence}
+\begin{enumerate}
+    \item Суммарное время ожидания:
+          $$
+              \sum_{i=1}^n{\sum_{j=1}^i{t_j}} = \sum_{j=1}^n{(n-j+1)t_j}
+          $$
+          Эта функция принимает минимальное значение, если $t_j$ отсортированы в порядке неубывания. Докажем это. Предположим, что функция уже принимает минимально возможное значение, причем для каких-то $j < i$ выполняется $t_j \geq t_i$, тогда заметим, что
+          \begin{align*}
+               & (n - j + 1)t_j + (n - i + 1)t_i =     \\
+               & (n + 1)(t_j + t_i) - jt_j - it_i \geq \\
+               & (n + 1)(t_j + t_i) - it_j - jt_i =    \\
+               & (n - j + 1)t_i + (n - i + 1)t_j
+          \end{align*}
+          Неравенство выполняется:
+          \begin{align*}
+               & it_i + jt_j \leq it_j + jt_i                   \\
+               & t_i + \frac{i}{j}t_j \leq t_j + \frac{i}{j}t_i \\
+               & \frac{i}{j}(t_j - t_i) \leq t_j - t_i
+          \end{align*}
+          Всегда верно при $j < i, \ t_j \geq t_i$.
+          Мы пришли к противоречию, а значит, массив отсортирован.
+
+          Оптимальный алгоритм - отсортировать массив. Тогда асимптотическая сложность будет $\Theta(n\log{n})$, так как сортировка происходит за $\Theta(n\log{n})$.
+
+    \item
+          \begin{enumerate}
+              \item[1.] $a = 25, \ b = 5, \ f(n) = n^2$, $f(n) = \Theta(n^{\log_b{a}})$, тогда $T(n) = \Theta(n^2\log{n})$.
+
+              \item[2.] $a = 16, \ b = 2, \ f(n) = n^3$, $f(n) = O(n^{\log_b{a} - \epsilon})$ для любых $\epsilon <= 1$ тогда $T(n) = \Theta(n^4)$.
+
+              \item[3.] $a = 9, \ b = 3, \ f(n) = n^3$, $f(n) = \Omega(n^{\log_b{a} + \epsilon})$ для любых $\epsilon <= 1$. Проверка на регулярность: $af(\frac{n}{b}) \leq cf(n)$ или $\frac{9n^3}{27} \leq cn^3$ - выполняется при больших $n$ для $c \geq \frac{2}{3}$. Тогда $T(n) = \Theta(n^3)$.
+
+              \item[4.] Мастер теорема неприменима, так как сложность функции не соответствует форме $T(n) = aT(\frac{n}{b}) + f(n)$.
+
+                  $$
+                      T(n) = T(n-1) + 3n = \sum_{i=1}^n{3i} = \frac{3n(n+1)}{2} = \Theta(n^2)
+                  $$
+
+              \item[5.] Мастер теорема неприменима. Предположим, что $T(n) = \Theta(n\log{n})$, тогда для больших $n$ справедливо
+                  \begin{align*}
+                       & T(n) = \frac{cn}{4}\log{\frac{n}{4}} + \frac{3cn}{4}\log{\frac{3n}{4}} + n                                   \\
+                       & T(n) = \frac{cn}{4}\log{n} - \frac{cn}{4}\log{4} + \frac{3cn}{4}\log{n} - \frac{3cn}{4}\log{\frac{4}{3}} + n \\
+                       & T(n) = \Theta(n\log{n})
+                  \end{align*}
+                  Так как в полученном выражении $n\log{n}$ - самый асимптотически большой множитель.
+          \end{enumerate}
+
+    \item Асимптотически количество выведенных строк равно
+          $$
+              T(n) = 3T(\frac{n}{2}) + \frac{n}{2}
+          $$
+          Применим мастер теорему для $a = 3, \ b = 2, \ f(n) = \frac{n}{2}$. Для всех $\epsilon < \log_2{3} - 1$ справедливо $\frac{n}{2} = O(n^{\log_2{3} - \epsilon})$, значит, примненяется первый случай теоремы:
+          $$
+              T(n) = \Theta(n^{\log_2{3}})
+          $$
+
+\end{enumerate}
+\end{document}
