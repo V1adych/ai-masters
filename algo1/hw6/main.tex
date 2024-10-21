@@ -1,0 +1,257 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Algorithms}
+\fancyhead[R]{\thepage}
+
+\title{Algorithms 1 \\ Homework 6}
+\author{Nikita Zagainov}
+\date{\today}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{gray},
+    backgroundcolor=\color{lightgray!20},
+    frame=single,
+    rulecolor=\color{black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    captionpos=b
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Разные задачи. Расширенный алгоритм Евклида.}
+\begin{enumerate}
+    \item
+          По формуле суммы первых $n$ членов
+          геометрической прогрессии имеем:
+          \[
+              f(n) = \frac{c^{n + 1} - 1}{c - 1} = \Theta{c^n}
+          \]
+
+    \item
+          Рассмотрим характеристическое уравнение,
+          полученное из рекуррентного соотношения \\
+          $T(n) = T(n - 1) + 4T(n - 3)$:
+          \[
+              r^n = r^{n - 1} + 4r^{n - 3} \Longleftrightarrow
+              r^3 = r^2 + 4
+          \]
+          Корни характеристического уравнения:
+          \[
+              r_1 = 2,
+              \quad r_2 = -\frac{1}{2} + \frac{i\sqrt{7}}{2},
+              \quad r_3 = -\frac{1}{2} - \frac{i\sqrt{7}}{2}
+          \]
+          Тогда решение рекуррентного соотношения представимо
+          в виде из линейной комбинации:
+          \[
+              T(n) = c_1 2^n +
+              c_2 \left(-\frac{1}{2} + \frac{i\sqrt{7}}{2}\right)^n +
+              c_3 \left(-\frac{1}{2} - \frac{i\sqrt{7}}{2}\right)^n
+          \]
+          Это экспоненциальная функция, а значит,
+          взяв логарифм от обеих частей, справа
+          получим линейную функцию:
+          \[
+              \log T(n) = O(n)
+          \]
+
+    \item
+          Наименьшее общее кратное двух чисел $a$ и $b$ равно
+          их произведению, делённому на их наибольший общий делитель:
+          \[
+              \mathrm{lcm}(a, b) = \frac{a \cdot b}{\gcd(a, b)}
+          \]
+          Если для нахождения НОД используется алгоритм Евклида,
+          то алгоритм нахождения НОК можно записать следующим образом:
+          \begin{lstlisting}
+def gcd(a, b):
+    if b == 0:
+        return a
+    return gcd(b, a % b)
+
+def lcm(a, b):
+    return a * b // gcd(max(a, b), min(a, b))
+          \end{lstlisting}
+
+          Оценим асимптотику алгоритма для $a$ и $b$ с
+          количеством битов $n$ и $m$ соответственно.
+          Асимптотически количество вызовов алгоритма
+          Евклида равно
+          \[
+              O(\log \min(a, b)) = O(\min(n, m)) = O(m)
+          \]
+          так как на каждом шаге алгоритма Евклида одно из чисел
+          уменьшается как минимум вдвое.
+          Таким образом, асимптотика алгоритма алгоритма
+          Евклида равна $O(nm^2)$, так как на каждом шаге
+          алгоритма Евклида происходит деление с остатком
+          за $O(nm)$.
+
+          Тогда асимптотика алгоритма нахождения НОК равна
+          $O(nm + nm^2 + m(n + m)) = O(nm^2)$, где произведение
+          и требует $O(nm)$ времени,
+          деление --- $O(m(n + m))$,
+          сравнение --- линейное.
+
+    \item
+          Предположим, что при больших $n$ справедливо
+          $T(n) \leq Cn$ для некоторой константы $C$.
+          Тогда:
+          \begin{align*}
+               & T(n) = 3T(\frac{n}{4}) + T(\frac{n}{6}) + n \\
+               & T(n) \leq 3C\frac{n}{4} + C\frac{n}{6} + n  \\
+               & T(n) \leq Cn\frac{11}{12} + n
+          \end{align*}
+          Для $C \geq 12$ верно:
+          \[
+              T(n) \leq Cn\frac{11}{12} + n \leq Cn
+          \]
+          Тогда $T(n) = \Theta(n)$.
+
+    \item
+          Расширенный алгоритм Евклида восстанавливает
+          коэффициенты $x$ и $y$ в линейном представлении
+          НОД $a$ и $b$ по следующему правилу:
+          \[
+              x_t, \ y_t = y_{t+1}, \ x_{t+1} -
+              \lfloor \frac{a}{b} \rfloor y_{t+1}
+          \]
+          Построим таблицу рекурсивных вызовов:
+          \begin{center}
+              \begin{tabular}{|c|c|c|c|c|c|c|}
+                  \hline
+                  $t$ & $a$ & $b$ & $d$ & $\lfloor \frac{a}{b} \rfloor$ & $x$ & $y$ \\
+                  \hline
+                  \hline
+                  0   & 45  & 36  & 9   & 1                             & 1   & -1  \\
+                  \hline
+                  1   & 36  & 9   & 9   & 4                             & 0   & 1   \\
+                  \hline
+                  2   & 9   & 0   & 9   & -                             & 1   & 0   \\
+                  \hline
+              \end{tabular}
+          \end{center}
+          Тогда $x = -1, \ y = 1$ (В таблице $a$ и $b$
+          поменялись местами для удобства):
+          \[
+              \gcd(36, 45) = -1 \cdot 36 + 1 \cdot 45
+          \]
+
+    \item
+          Пусть оптимальный алгоритм перекладывает
+          $n$ колец за $T(n)$ шагов. Тогда, чтобы переложить
+          последнее кольцо со стартового стержня на целевой,
+          необходимо сначала переложить $n - 1$ кольцо на
+          вспомогательный стержень за $T(n - 1)$ шагов,
+          потом за один шаг переложить последнее кольцо
+          на целевой стержень, и затем переложить $n - 1$
+          кольцо с вспомогательного стержня на целевой за
+          $T(n - 1)$ шагов. Таким образом, рекуррентное
+          соотношение:
+          \[
+              T(n) = 2T(n - 1) + 1
+          \]
+
+          Откуда $T(n) = 2^n - 1 = \Theta(2^n)$.
+          Алгоритм, делающий $2^n - 1$ шагов:
+          \begin{lstlisting}
+from collections import deque
+
+
+def place_rings(n: int, initial: deque, target: deque, helper: deque):
+    if n == 1:
+        target.append(initial.pop())
+    else:
+        place_rings(n - 1, initial, helper, target)
+        target.append(initial.pop())
+        place_rings(n - 1, helper, target, initial)
+          \end{lstlisting}
+
+    \item
+          Для начала создадим копию входного массива
+          и отсортируем его за $O(n \log n)$. Далее
+          инициализируем указатель на первый элемент
+          один раз пройдём другим указателем по длине
+          массива, постоянно сравнивая подмассивы
+          элементов из входного массива с начала
+          и до указателя с подмассивы элементов из
+          отсортированного массива от начала и до
+          указателя. Если подмассивы равны, то подмассив
+          от первого указателя до второго является
+          одним из возможных подмассивов. Добавляем этот
+          отрезок к ответу и записываем значение
+          второго указателя в первый указатель.
+
+          Этот алгоритм гарантированно найдёт максимальное
+          количество подмассивов. Если это оказалось не так,
+          то в ответе алгоритма найдётся подмассив, который
+          может быть поделён на меньшие подмассивы, но
+          это противоречит тому, что алгоритм записывает
+          подмассивы в результат каждый раз, когда подмассивы
+          элементов совпадают.
+
+          Асимптотика алгоритма:
+          $O(n \log n + n) = O(n \log n)$ на сортировку
+          и один проход по массиву.
+
+          \begin{lstlisting}
+def max_sub_arrays(arr: list):
+    sorted_arr = sorted(arr)
+    sub_arrays = []
+
+    arr_running_sum = 0
+    sorted_arr_running_sum = 0
+    current_start = 0
+
+    for i in range(len(arr)):
+        arr_running_sum += arr[i]
+        sorted_arr_running_sum += sorted_arr[i]
+
+        if arr_running_sum == sorted_arr_running_sum:
+            sub_arrays.append([current_start, i + 1])
+            current_start = i + 1
+            arr_running_sum = 0
+            sorted_arr_running_sum = 0
+
+    return sub_arrays
+          \end{lstlisting}
+
+          Этот алгоритм сравнивает не подмассивы элементов,
+          а суммы одинаковых префиксов массивов.
+          Такой подход тоже работает, так как префиксная
+          сумма отсортированного массива --- сумма такого
+          же количества минимальных элементов в исходном
+          массиве. Тогда суммы будут равно тогда и
+          только тогда, когда подмассивы равны. Для всех
+          отрезков элементов после первого элемента это
+          свойство сохраняется, так как после нахождения
+          первого подмассива процесс эквивалентен нахождению
+          первого подмассива в оставшемся массиве.
+
+\end{enumerate}
+\end{document}
