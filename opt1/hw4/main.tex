@@ -1,0 +1,647 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}  % For Cyrillic fonts
+\usepackage[utf8]{inputenc}  % For UTF-8 encoding
+\usepackage[english, russian]{babel}  % For Russian language support
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[a4paper, margin=0.85in]{geometry}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{gray},
+    backgroundcolor=\color{lightgray!20},
+    frame=single,
+    rulecolor=\color{black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    captionpos=b
+}
+
+\title{Optimization 1 \\ Homework 4}
+\author{Nikita Zagainov}
+\date{\selectlanguage{english}\today}
+
+\begin{document}
+\maketitle
+\section{Условия оптимальности}
+\begin{enumerate}
+	\item Задача может быть сформулирована следующим образом:
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{Minimize}   &  & \sum_{i=1}^{n+1} E_i (s_i)                   \\
+			       & \text{Subject to} &  & \sum_{i=1}^{n+1} s_i = W - \sum_{i=1}^n w_i, \\
+		      \end{aligned}
+	      \end{equation*}
+	      где
+	      \[
+		      E_i (s_i) = \begin{cases}
+			      \frac{k_i^{ext}}{2} {(s_i - N_i)}^2,  & \text{if } s_i > N_i,   \\
+			      \frac{k_i^{comp}}{2} {(s_i - N_i)}^2, & \text{if } s_i \leq N_i
+		      \end{cases}
+	      \]
+	      Целевая функция является выпуклой, так как является суммой выпуклых функций,
+	      ограничения задаются линейными функциями. Таким образом, задача является выпуклой.
+
+	      Запишем лагранжиан:
+	      \[
+		      L(s, \lambda) = \sum_{i=1}^{n+1} E_i (s_i) + \lambda \left( \sum_{i=1}^{n+1} s_i + \sum_{i=1}^n w_i - W \right)
+	      \]
+	      Запишем условия ККТ:
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{1.} &  & \sum_{i=1}^{n+1} s_i = W - \sum_{i=1}^n w_i                                                                  \\
+			       & \text{2.} &  & \forall{i} \text{: } \frac{\partial L}{\partial s_i} = 0 \Longleftrightarrow
+			      \begin{cases}
+				      k_i^{ext} (s_i - N_i) + \lambda = 0, & \text{if } s_i > N_i, \\ k_i^{comp} (s_i - N_i) + \lambda = 0, & \text{if } s_i \leq N_i
+			      \end{cases} \\
+			       & \text{3.} &  & \frac{\partial L}{\partial \lambda} = 0 \Longleftrightarrow \sum_{i=1}^{n+1} s_i + \sum_{i=1}^n w_i =
+			      W                                                                                                                              \\
+		      \end{aligned}
+	      \end{equation*}
+
+	      Рассмотрим три возможных случая:
+
+	      \[
+		      \text{1: } \sum_{i=1}^{n+1} N_i = W - \sum_{i=1}^n w_i
+	      \]
+
+	      Тогда оптимальное решение будет $s_i = N_i, \ \forall i$.
+
+	      \[
+		      \text{2: } \sum_{i=1}^{n+1} N_i < W - \sum_{i=1}^n w_i
+	      \]
+
+	      Тогда $\exists i: s_i > N_i$. Тогда если $\exists j: s_j < N_j$, тогда более
+	      оптимальным решением будет добавить ширину к $s_j$ до $N_j$ за счет вычета
+	      эквивалентной ширины из $s_i$ таких, что $s_i > N_i$ (Это всегда возможно по
+	      условию $\sum_{i=1}^{n+1} N_i < W - \sum_{i=1}^n w_i$). Таким образом,
+	      в данном случае для оптимального $s$ выполнено $k_i^{ext} (s_i - N_i) + \lambda = 0$.
+	      откуда решением задачи будет решение системы уравнений:
+	      \begin{equation*}
+		      \begin{aligned}
+			      \begin{cases}
+				       & s_i = N_i - \frac{\lambda}{k_i^{ext}}, \ \forall i \\
+				       & \sum_{i=1}^{n+1} s_i + \sum_{i=1}^n w_i = W
+			      \end{cases}
+		      \end{aligned}
+	      \end{equation*}
+
+	      \[
+		      \text{3: } \sum_{i=1}^{n+1} N_i > W - \sum_{i=1}^n w_i
+	      \]
+
+	      Аналогично предыдущему случаю, получаем эту систему:
+	      \begin{equation*}
+		      \begin{aligned}
+			      \begin{cases}
+				       & s_i = N_i - \frac{\lambda}{k_i^{comp}}, \ \forall i \\
+				       & \sum_{i=1}^{n+1} s_i + \sum_{i=1}^n w_i = W
+			      \end{cases}
+		      \end{aligned}
+	      \end{equation*}
+
+	\item Целевая функция выпукла:
+	      $\mathrm{trace}(\mathbf{X})$ --- линейная функция по
+	      диагональным элементам матрицы $\mathbf{X}$,
+	      $\log \det(\mathbf{X})$ --- вогнутая функция.
+	      Тогда $\mathrm{trace}(\mathbf{X}) - \log \det(\mathbf{X})$ ---
+	      выпуклая функция. Ограничения также заданы линейными функциями,
+	      таким образом, задача является выпуклой.
+
+	      Запишем лагранжиан:
+	      \[
+		      L(\mathbf{X}, \lambda) =
+		      \mathrm{trace}(\mathbf{X}) -
+		      \log \det(\mathbf{X}) +
+		      \lambda^\top (\mathbf{Xz} - \mathbf{y})
+	      \]
+
+	      Запишем градиент по $\mathbf{X}$:
+
+	      \begin{align*}
+		      \frac{\partial L}{\partial \mathbf{X}_{ij}} & = \mathbf{I}_{ij} - \frac{1}{\det(\mathbf{X})}
+		      \mathrm{adj}(\mathbf{X}_{ij}) - \lambda_i \mathbf{z}_j                                       \\  & = \mathbf{I}_{ij} -
+		      \mathbf{X}^{-1}_{ij} - \lambda_i \mathbf{z}_j
+	      \end{align*}
+
+	      Откуда имеем:
+
+	      \[
+		      \frac{\partial L}{\partial \mathbf{X}} = \mathbf{I} - \mathbf{X}^{-1} - \lambda \mathbf{z}^\top
+	      \]
+
+	      Решение $\frac{\partial L}{\partial \mathbf{X}} = 0$ даёт:
+
+	      \[
+		      \mathbf{X} = {(\mathbf{I} + \lambda \mathbf{z}^\top)}^{-1}
+	      \]
+
+	      Мы знаем, что $\mathbf{Xz} =
+		      \mathbf{y} \iff \mathbf{z} =
+		      \mathbf{X}^{-1}\mathbf{y}$,
+	      а также $\mathbf{X}^{-1} = \mathbf{I} +
+		      \lambda \mathbf{z}^\top$.
+	      Отсюда получаем:
+	      \begin{align*}
+		       & (\mathbf{I} + \lambda \mathbf{z}^\top) \mathbf{y} = \mathbf{z} \iff  \\
+		       & \mathbf{y} + \lambda \mathbf{z}^\top \mathbf{y} = \mathbf{z} \iff    \\
+		       & \lambda = \frac{\mathbf{z} - \mathbf{y}}{\mathbf{z}^\top \mathbf{y}}
+	      \end{align*}
+
+	      Таким образом, решение задачи имеет вид:
+
+	      \[
+		      \mathbf{X} = {\left( \mathbf{I} + \frac{\mathbf{z} - \mathbf{y}}{\mathbf{z}^\top \mathbf{y}} \mathbf{z}^\top \right) }^{-1}
+	      \]
+
+	\item Запишем лагранжиан этой функции:
+	      \[
+		      L(x, \lambda, \mu) =
+		      \|\mathbf{x} - \mathbf{y}\|_2^2 +
+		      \lambda \left( \sum_{i=1}^n x_i - 1 \right) -
+		      \mu^\top \mathbf{x}
+	      \]
+
+	      Запишем условия ККТ:
+
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{1. } &  & \sum_{i=1}^n x_i = 1      \\
+			       & \text{2. } &  & x_i \geq 0, \ \forall i   \\
+			       & \text{3. } &  & \mu_i \geq 0, \ \forall i \\
+			       & \text{4. } &  &
+			      \frac{\partial L}{\partial x_i} = 0 \Longleftrightarrow 2(x_i - y_i) + \lambda - \mu_i = 0, \ \forall
+			      i                                            \\ & \text{5. } & & \mu_i x_i = 0, \ \forall i \\
+		      \end{aligned}
+	      \end{equation*}
+
+	      Из условий 4 и 5 следует:
+
+	      \[
+		      \begin{cases}
+			      x_i = y_i - \frac{\lambda}{2},                     & \text{if } x_i > 0 \\
+			      \nu_i = \lambda - 2y_i \iff \lambda - 2y_i \geq 0, & \text{if } x_i = 0
+		      \end{cases}
+	      \]
+
+	      Таким образом, значение $x_i$ можно записать так:
+
+	      \[
+		      x_i = \max(0, y_i - \frac{\lambda}{2})
+	      \]
+
+	      Подставим это в условие 1:
+
+	      \[
+		      \sum_{i=1}^n \max(0, y_i - \frac{\lambda}{2}) = 1
+	      \]
+
+	      Тогда нам нужно найти такое $\lambda$, что это условие выполняется.
+	      для нахождения $\lambda$ можно использовать следующий алгоритм:
+	      \begin{lstlisting}
+def optimal_lambda(y: list[float]) -> float:
+    y = sorted(y, reverse=True)
+    n = len(y)
+    y.append(-float("inf"))
+    cum_sum = 0
+    for i in range(n):
+        cum_sum += y[i]
+        if cum_sum - (i + 1) * y[i + 1] > 1:
+            return (2 * cum_sum - 2) / (i + 1)
+    
+    return (2 * sum(y) - 1) / n
+          \end{lstlisting}
+
+	      Алгоритм сортирует $y$ по убыванию, затем вычисляет префиксные суммы.
+	      Если для какого-то $i$ выполняется $\sum_{i=0}^{k} y_i - ky_{i+1} > 1$,
+	      тогда и только тогда порог $\lambda$ должен быть больше, чем все элементы
+	      после $y_i$. После того, как мы нашли такой $i$, мы можем найти $\lambda$
+	      из формулы:
+	      \begin{align*}
+		       & \sum_{i=1}^k y_i - \frac{\lambda}{2} k = 1 \iff           \\
+		       & \lambda = \frac{2 \left( \sum_{i=1}^k y_i - 1 \right)}{k}
+	      \end{align*}
+
+	      Сложность алгоритма $O(n \log n)$, так как он сортирует $y$,
+	      a затем затем проходит по нему.
+
+\end{enumerate}
+
+\section{Двойственные задачи}
+
+\begin{enumerate}
+	\item Запишем лагранжиан для исходной задачи:
+	      \[
+		      L(\mathbf{x}, \lambda, \mu) = \mathbf{c}^\top \mathbf{x}
+		      + \lambda^\top (\mathbf{x}(1 - \mathbf{x}))
+		      + \mu^\top (\mathbf{Ax} - \mathbf{b}),
+	      \]
+	      \[
+		      \mu \geq 0
+	      \]
+
+	      Двойственная задача, решение которой будет нижней
+	      оценкой для решения прямой:
+	      \begin{align*}
+		      g(\lambda, \mu) & = \inf_{\mathbf{x}} L(\mathbf{x}, \lambda, \mu) \\
+		                      & = -\mu^\top b +
+		      \inf_{\mathbf{x}}
+		      \left( {(\mathbf{c} + \lambda +
+					      \mathbf{A}^\top \mu)}^\top \mathbf{x} -
+		      \lambda^\top \mathbf{x}^2 \right)                                 \\
+		                      & = -\mu^\top \mathbf{b} +
+		      \begin{cases}
+			      0       & \text{if } (\mathbf{c} + \lambda +
+			      \mathbf{A}^\top \mu) = 0, \ \lambda \leq 0   \\
+			      -\infty & \text{otherwise}
+		      \end{cases}
+	      \end{align*}
+
+	      Тогда нижняя оценка будет равна $-\mu^\top b$
+	      при решении задачи
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{Maximize}   &  & -\mu^\top b                              \\
+			       & \text{Subject to} &  & \mathbf{A}^\top \mu + \mathbf{c} \geq 0, \\
+			       &                   &  & \mu > 0
+		      \end{aligned}
+	      \end{equation*}
+
+	      Запишем лагранжиан для релаксированной задачи:
+	      \[
+		      L(\mathbf{x}, \mu) = \mathbf{c}^\top \mathbf{x}
+		      - \mu_1^\top \mathbf{x}
+		      + \mu_2^\top (\mathbf{x} - 1)
+		      + \mu_3^\top (\mathbf{Ax} - \mathbf{b}),
+	      \]
+	      \[
+		      \mu_1, \mu_2, \mu_3 \geq 0
+	      \]
+
+	      Найдем нижнюю оценку:
+
+	      \begin{align*}
+		      g(\mu) & = \inf_{\mathbf{x}} L(\mathbf{x}, \mu) \\
+		             & = -\mu_3^\top \mathbf{b}
+		      - \mu_2^\top \mathbf{\bar{1}}
+		      + \inf_{\mathbf{x}} \left( {(\mathbf{c} -
+					      \mu_1 + \mathbf{A}^\top \mu_3)}^\top
+		      \mathbf{x} \right) =                            \\
+		             & = -\mu_3^\top \mathbf{b}
+		      - \mu_2^\top \mathbf{\bar{1}} +
+		      \begin{cases}
+			      0       & \text{if } \mathbf{c} -
+			      \mu_1 + \mathbf{A}^\top \mu_3 = 0 \\
+			      -\infty & \text{otherwise}
+		      \end{cases}
+	      \end{align*}
+
+	      Тогда нижняя оценка для задаи релаксации будет решением
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{Maximize}   &  & -\mu_3^\top \mathbf{b} -
+			      \mu_2^\top \mathbf{\bar{1}}                        \\
+			       & \text{Subject to} &  & \mathbf{A}^\top \mu_3 +
+			      \mathbf{c} \geq 0,                                 \\
+			       &                   &  & \mu_3, \mu_2 > 0
+		      \end{aligned}
+	      \end{equation*}
+
+	      Заметим, что в этой задаче занулится $\mu_2$, тогда нижняя
+	      оценка задачи релаксации и прямой задачи совпадут.
+
+	      Также заметим, что область определения релаксированной
+	      задачи включает в себя область определения исходной задачи.
+	      Тогда справедливо, что её минимум не больше минимума
+	      этой задачи, то есть, она будет нижней оценкой для исходной
+	      задачи.
+
+	\item Переформулируем задачу:
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{Minimize}   &  & y \\
+			       & \text{Subject to} &  &
+			      \mathbf{a}_i^\top \mathbf{x} +
+			      b_i \leq y, \ \forall i     \\
+		      \end{aligned}
+	      \end{equation*}
+
+	      Запишем лагранжиан:
+
+	      \[
+		      L(\mathbf{x}, y, \mu) = y +
+		      \sum_{i=1}^k \mu_i (\mathbf{a}_i^\top
+		      \mathbf{x} + b_i - \mathbf{y}),
+	      \]
+	      \[
+		      \mu \geq 0
+	      \]
+
+	      Запишем двойственную задачу:
+
+	      \begin{align*}
+		      g(\mu) & = \inf_{\mathbf{x}, y}
+		      L(\mathbf{x}, y, \mu)                              \\
+		             & = \sum_{i=1}^k \mu_i b_i +
+		      \inf_{x, y} \left( y + \sum_{i=1}^k \mu_i
+		      (\mathbf{a}_i^\top \mathbf{x} - y) \right)         \\
+		             & = \sum_{i=1}^k \mu_i b_i +
+		      \inf_{x, y} \left(
+		      y \left( 1 - \sum_{i=1}^k \mu_i \right) +
+		      \mathbf{x} \sum_{i=1}^k \mu_i \mathbf{a}_i \right) \\
+		             & = \mu^\top \mathbf{b} +
+		      \begin{cases}
+			      0       & \text{if } \sum_{i=1}^k \mu_i = 1, \
+			      \sum_{i=1}^k \mu_i \mathbf{a}_i                \\
+			      -\infty & \text{otherwise}
+		      \end{cases}
+	      \end{align*}
+
+	      Тогда двойственная задача будет:
+
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{Maximize}   &  & \mu^\top \mathbf{b}                    \\
+			       & \text{Subject to} &  & \sum_{i=1}^k \mu_i = 1                 \\
+			       &                   &  & \sum_{i=1}^k \mu_i \mathbf{a}_i \geq 0 \\
+			       &                   &  & \mu \geq 0
+		      \end{aligned}
+	      \end{equation*}
+
+	\item Запишем лагранжиан:
+	      \[
+		      L(\mathbf{X}, \mu) = -\log\det
+		      \mathbf{X} + \sum_{i=1}^{m} \mu_i
+		      (\mathbf{a}_i^\top \mathbf{Xa}_i - 1),
+	      \]
+	      \[
+		      \mu \geq 0
+	      \]
+	      Обозначим $\mathbf{A} = \sum_{i=1}^{m}
+		      \mu_i \mathbf{a}_i \mathbf{a}_i^\top$,
+
+	      Тогда двойственная задача будет задачей
+	      максимизации функции
+	      \begin{align*}
+		      g(\mu) & = \inf_{\mathbf{X}}
+		      L(\mathbf{X}, \mu)             \\
+		             & = -\sum_{i=1}^m \mu_i
+		      + \inf_{\mathbf{X}}
+		      \left( -\log\det \mathbf{X}
+		      + \mathrm{tr} (\mathbf{AX}) \right)
+	      \end{align*}
+	      Условие оптимальности:
+	      \[
+		      \frac{\partial L}{\partial \mathbf{X}} = -\mathbf{X}^{-1} + \mathbf{S} = 0 \iff \mathbf{X} =
+		      \mathbf{A}^{-1}
+	      \]
+
+	      Откуда получаем, что для существования решения
+	      двойственной задачи должно выполняться
+	      $\mathbf{A} \succ 0$. Подставим это в
+	      $g(\mu)$:
+	      \begin{align*}
+		      g(\mu) & = -\sum_{i=1}^m \mu_i +
+		      \log\det \mathbf{A} + \mathrm{tr}(I) \\
+		             & = -\sum_{i=1}^m \mu_i + n +
+		      \log\det \left( \sum_{i=1}^{m}
+		      \mu_i \mathbf{a}_i
+		      \mathbf{a}_i^\top \right)
+	      \end{align*}
+
+	      Тогда двойственная задача будет:
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{Maximize}   & - & \sum_{i=1}^m \mu_i + n +
+			      \log\det \left( \sum_{i=1}^{m}
+			      \mu_i \mathbf{a}_i
+			      \mathbf{a}_i^\top \right)                           \\
+			       & \text{Subject to} &   & \sum_{i=1}^{m}
+			      \mu_i \mathbf{a}_i
+			      \mathbf{a}_i^\top \succ 0                           \\
+			       &                   &   & \mu \geq 0
+		      \end{aligned}
+	      \end{equation*}
+
+	\item
+	      \begin{itemize}
+		      \item[(a)]
+			      Запишем лагранжиан:
+			      \[
+				      L(x_1, x_2, x_3, \lambda) = -3x_1^2 + x_2^2 + 2x_3^2 + 2(x_1 + x_2 + x_3) + \lambda (x_1^2 + x_2^2 + x_3^2 - 1)
+			      \]
+			      Условия ККТ:
+
+			      \begin{equation*}
+				      \begin{aligned}
+					       & \text{1.} &  &
+					      \frac{\partial L}{\partial x_1} =
+					      -6x_1 + 2 + 2\lambda x_1 = 0 \\
+					       & \text{2.} &  &
+					      \frac{\partial L}{\partial x_2} =
+					      2x_2 + 2 + 2\lambda x_2 = 0  \\
+					       & \text{3.} &  &
+					      \frac{\partial L}{\partial x_3} =
+					      4x_3 + 2 + 2\lambda x_3 = 0  \\
+					       & \text{4.} &  &
+					      x_1^2 + x_2^2 + x_3^2 - 1 = 0
+				      \end{aligned}
+			      \end{equation*}
+
+			      Решение этой системы уравнений:
+			      \begin{equation*}
+				      \begin{aligned}
+					       & x_1     \approx &   & 0.36017, \\
+					       & x_2     \approx & - & 0.81732, \\
+					       & x_3     \approx & - & 0.44974, \\
+					       & \lambda \approx & - & 0.22351
+				      \end{aligned}
+			      \end{equation*}
+
+		      \item[(b)]
+			      Задача не выпуклая, так как гессиан целевой функции
+			      не является положительно определенным:
+			      \[
+				      \mathbf{H} = \begin{bmatrix}
+					      -3 & 0 & 0 \\
+					      0  & 1 & 0 \\
+					      0  & 0 & 2
+				      \end{bmatrix}
+			      \]
+			      и ограничительная функция является
+			      поверхностью сферы единичного радиуса,
+			      что не является выпуклым множеством.
+
+		      \item[(c)]
+			      \begin{equation*}
+				      \begin{aligned}
+					      g(\lambda) & = \inf_{x_1, x_2, x_3} L(x_1, x_2, x_3, \lambda)                                                                                   \\
+					                 & =-\lambda + \inf_{x_1, x_2, x_3} \left( (-3 + \lambda)x_1^2 + (1 + \lambda)x_2^2 + (2 + \lambda)x_3^2 + 2(x_1 + x_2 + x_3) \right) \\
+				      \end{aligned}
+			      \end{equation*}
+			      Выражение под инфимумом имеет вид
+			      $\mathbf{a}^\top \mathbf{x}^2 +
+				      \mathbf{b}^\top\mathbf{x}$,
+			      оно принимает конечный минимум при
+			      $\mathbf{x} = -\frac{1}{2}
+				      \mathbf{H}^{-1} \mathbf{b}$,
+			      $\mathbf{H} = \mathrm{diag}(\mathbf{a})$,
+			      $a_i > 0, \ \forall i$.
+			      Тогда
+			      \begin{align*}
+				      g(\lambda) & = -\lambda +
+				      \begin{bmatrix}
+					      -3 + \lambda \\
+					      1 + \lambda  \\
+					      2 + \lambda
+				      \end{bmatrix}^\top
+				      \begin{bmatrix}
+					      \frac{1}{3 - \lambda}  \\
+					      -\frac{1}{1 + \lambda} \\
+					      -\frac{1}{2 + \lambda}
+				      \end{bmatrix} +
+				      \begin{bmatrix}
+					      2 \\
+					      2 \\
+					      2 \\
+				      \end{bmatrix}^\top
+				      \begin{bmatrix}
+					      \frac{1}{3 - \lambda}  \\
+					      -\frac{1}{1 + \lambda} \\
+					      -\frac{1}{2 + \lambda}
+				      \end{bmatrix}                 \\
+				                 & = -\lambda + 3 + 2 \left(
+				      \frac{1}{3 - \lambda} -
+				      \frac{1}{1 + \lambda} -
+				      \frac{1}{2 + \lambda} \right)
+			      \end{align*}
+			      При ограничении
+			      \[
+				      \lambda > 3
+			      \]
+			      Тогда двойственная задача будет:
+			      \begin{equation*}
+				      \begin{aligned}
+					       & \text{Maximize}   &  & -\lambda + 3 + 2 \left(
+					      \frac{1}{3 - \lambda} -
+					      \frac{1}{1 + \lambda} -
+					      \frac{1}{2 + \lambda} \right)                     \\
+					       & \text{Subject to} &  & \lambda > 3
+				      \end{aligned}
+			      \end{equation*}
+	      \end{itemize}
+
+	\item Переформулируем задачу следующим образом:
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{Minimize}   &  &
+			      \frac{1}{2}
+			      \| \mathbf{x} - \mathbf{x}_0 \|_2^2 +
+			      \sum_{i=1}^p \| \mathbf{t}_i \|_2 \\
+			       & \text{Subject to} &  &
+			      \mathbf{t}_i = \mathbf{A}_i \mathbf{x} +
+			      \mathbf{b}_i, \ \forall i
+		      \end{aligned}
+	      \end{equation*}
+
+	      Запишем лагранжиан:
+	      \[
+		      L(\mathbf{x}, \mathbf{t}, \lambda) =
+		      \frac{1}{2} \| \mathbf{x} - \mathbf{x}_0 \|_2^2 +
+		      \sum_{i=1}^p \| \mathbf{t}_i \|_2 +
+		      \sum_{i=1}^p \lambda_i^\top \left(
+		      \mathbf{A}_i \mathbf{x} +
+		      \mathbf{b}_i - \mathbf{t}_i \right)
+	      \]
+
+	      Двойственная задача будет максимизировать
+	      \begin{align*}
+		      g(\lambda) & = \inf_{\mathbf{x}, \mathbf{t}}
+		      L(\mathbf{x}, \mathbf{t}, \lambda)           \\
+		                 & =
+		      \sum_{i=1}^p \lambda_i^\top \mathbf{b}_i +
+		      \inf_{\mathbf{x}, \mathbf{t}}
+		      \left( \frac{1}{2}
+		      \| \mathbf{x} - \mathbf{x}_0 \|_2^2 +
+		      \sum_{i=1}^p \| \mathbf{t}_i \|_2 +
+		      \sum_{i=1}^p \lambda_i^\top \left(
+			      \mathbf{A}_i \mathbf{x}
+			      - \mathbf{t}_i \right) \right)
+	      \end{align*}
+
+	      Условия оптимальности по $\mathbf{x}$:
+	      \[
+		      \frac{\partial L}{\partial \mathbf{x}} =
+		      \mathbf{x} - \mathbf{x}_0 +
+		      \sum_{i=1}^p \mathbf{A}_i^\top \lambda_i = 0
+		      \iff \mathbf{x} = \mathbf{x}_0 -
+		      \sum_{i=1}^p \mathbf{A}_i^\top \lambda_i
+	      \]
+
+	      Условия оптимальности по $\mathbf{t}$:
+	      \[
+		      \frac{\partial L}{\partial \mathbf{t}_i} =
+		      \frac{\mathbf{t}_i}{\| \mathbf{t}_i \|_2} -
+		      \lambda_i = 0
+		      \Rightarrow \| \lambda_i \|_2 = 1,
+		      \ \forall i
+	      \]
+
+	      Откуда получаем
+	      \[
+		      \lambda_i^\top \mathbf{t}_i =
+		      \lambda_i^\top \lambda_i \| \mathbf{t}_i \| =
+		      \| \mathbf{t}_i \|
+	      \]
+
+	      Подставим это в $g(\lambda)$:
+
+	      \begin{align*}
+		      g(\lambda) & =
+		      \sum_{i=1}^p \lambda_i^\top \mathbf{b}_i +
+		      \frac{1}{2} \| \sum_{i=1}^p
+		      \mathbf{A}_i^\top \lambda_i \|_2^2 +
+		      \sum_{i=1}^p \left(
+		      \| \mathbf{t}_i \| +
+		      \lambda_i^\top
+		      \mathbf{A}_i \left(
+			      \mathbf{x}_0 -
+			      \sum_{j=1}^p
+			      \mathbf{A}_j^\top \lambda_j
+			      \right) -
+		      \| \mathbf{t}_i \|
+		      \right)                                                   \\
+		                 & = \sum_{i=1}^p \lambda_i^\top \mathbf{b}_i +
+		      \frac{1}{2} \| \sum_{i=1}^p
+		      \mathbf{A}_i^\top \lambda_i \|_2^2 +
+		      \sum_{i=1}^p \lambda_i^\top
+		      \mathbf{A}_i \mathbf{x}_0 -
+		      \sum_{i=1}^p \lambda_i^\top
+		      \mathbf{A}_i^\top \left(
+		      \sum_{j=1}^p \mathbf{A}_j^\top \lambda_j
+		      \right)
+	      \end{align*}
+
+	      Таким образом, двойственная задача будет:
+	      \begin{equation*}
+		      \begin{aligned}
+			       & \text{Maximize}   &  & \sum_{i=1}^p \lambda_i^\top \mathbf{b}_i + \frac{1}{2} \| \sum_{i=1}^p \mathbf{A}_i^\top \lambda_i \|_2^2 + \sum_{i=1}^p \lambda_i^\top \mathbf{A}_i \mathbf{x}_0 - \sum_{i=1}^p \lambda_i^\top \mathbf{A}_i^\top \left( \sum_{j=1}^p \mathbf{A}_j^\top \lambda_j \right) \\
+			       & \text{Subject to} &  & \| \lambda_i \|_2 = 1, \ \forall i
+		      \end{aligned}
+	      \end{equation*}
+\end{enumerate}
+
+\end{document}
