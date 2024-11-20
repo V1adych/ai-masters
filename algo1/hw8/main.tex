@@ -1,0 +1,512 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[english, russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Algorithms}
+\fancyhead[R]{\thepage}
+
+\title{Algorithms 1 \\ Homework 8}
+\author{Nikita Zagainov}
+\date{\selectlanguage{english}\today}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{gray},
+    backgroundcolor=\color{lightgray!20},
+    frame=single,
+    rulecolor=\color{black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    captionpos=b
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+	\section*{Обходы и кратчайшие пути в графах}
+\end{center}
+\begin{enumerate}
+	\item Применим алгоритм поиска в глубину к дереву,
+	      записывая в каждую вершину время открытия и закрытия.
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[draw, circle] (f) at (0,6) {f};
+			      \node[draw, circle] (a) at (3,6) {a};
+			      \node[draw, circle] (e) at (6,6) {e};
+			      \node[draw, circle] (b) at (0,3) {b};
+			      \node[draw, circle] (d) at (3,3) {d};
+			      \node[draw, circle] (g) at (6,3) {g};
+			      \node[draw, circle] (c) at (0,0) {c};
+			      \node[draw, circle] (h) at (3,0) {h};
+
+			      \node[above] at (f.north) {8/9};
+			      \node[above] at (a.north) {1/10};
+			      \node[above] at (e.north) {12/13};
+			      \node[above left] at (b.north) {2/5};
+			      \node[below] at (d.south) {11/14};
+			      \node[above] at (g.north) {3/4};
+			      \node[below] at (c.south) {6/7};
+			      \node[above] at (h.north) {15/16};
+
+			      \draw[->, >=stealth, line width=1pt] (a) to (f);
+			      \draw[->, bend right=15, >=stealth, line width=1pt] (a) to (b);
+			      \draw[->, >=stealth, line width=1pt] (a) to (c);
+			      \draw[->, >=stealth, line width=1pt] (d) to (c);
+			      \draw[->, >=stealth, line width=1pt] (d) to (e);
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (f) to (g);
+			      \draw[->, bend left=30, >=stealth, line width=1pt] (b) to (g);
+		      \end{tikzpicture}
+	      \end{center}
+
+	      Далее, отсортируем вершины по убыванию времени закрытия.
+	      Результат топологической сортировки:
+	      \begin{center}
+		      \begin{tabular}{|c|c|c|c|c|c|c|c|}
+			      \hline
+			      1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\
+			      \hline
+			      h & d & e & a & f & c & b & g \\
+			      \hline
+		      \end{tabular}
+	      \end{center}
+
+	\item Первым шагом, произведём поиск в глубину на
+	      инвертированном графе, записывая в каждую вершину время
+	      открытия и закрытия:
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[draw, circle] (b) at (0,6) {b};
+			      \node[draw, circle] (a) at (3,6) {a};
+			      \node[draw, circle] (d) at (6,6) {d};
+			      \node[draw, circle] (c) at (1.5,3) {c};
+			      \node[draw, circle] (e) at (4.5,3) {e};
+			      \node[draw, circle] (h) at (0,0) {h};
+			      \node[draw, circle] (g) at (3,0) {g};
+			      \node[draw, circle] (f) at (6,0) {f};
+
+			      \node[below] at (f.south) {12/15};
+			      \node[above] at (a.north) {1/10};
+			      \node[above] at (e.north) {4/5};
+			      \node[above left] at (b.north) {2/9};
+			      \node[above] at (d.north) {11/16};
+			      \node[below] at (g.south) {13/14};
+			      \node[left] at (c.west) {3/8};
+			      \node[below] at (h.south) {6/7};
+
+			      \draw[->, >=stealth, line width=1pt, bend right=10] (a) to (b);
+			      \draw[->, >=stealth, line width=1pt, bend right=10] (b) to (a);
+			      \draw[->, >=stealth, line width=1pt, bend right=10] (b) to (c);
+			      \draw[->, >=stealth, line width=1pt, bend right=10] (c) to (b);
+			      \draw[->, >=stealth, line width=1pt] (c) to (a);
+			      \draw[->, >=stealth, line width=1pt] (c) to (h);
+			      \draw[->, >=stealth, line width=1pt] (g) to (h);
+			      \draw[->, >=stealth, line width=1pt] (c) to (e);
+			      \draw[->, >=stealth, line width=1pt] (g) to (e);
+			      \draw[->, >=stealth, line width=1pt] (f) to (g);
+			      \draw[->, >=stealth, line width=1pt, bend right=10] (f) to (d);
+			      \draw[->, >=stealth, line width=1pt, bend right=10] (d) to (f);
+		      \end{tikzpicture}
+	      \end{center}
+
+	      Далее, используя время закрытия вершин, произведём
+	      поиск в глубину на исходном графе,
+	      строя очередь по убыванию времени закрытия
+	      соответствующих вершин в инвертированном графе:
+
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[draw, circle] (b) at (0,6) {b};
+			      \node[draw, circle] (a) at (3,6) {a};
+			      \node[draw, circle] (d) at (6,6) {d};
+			      \node[draw, circle] (c) at (1.5,3) {c};
+			      \node[draw, circle] (e) at (4.5,3) {e};
+			      \node[draw, circle] (h) at (0,0) {h};
+			      \node[draw, circle] (g) at (3,0) {g};
+			      \node[draw, circle] (f) at (6,0) {f};
+
+			      \node[below] at (f.south) {2/3};
+			      \node[above] at (a.north) {7/12};
+			      \node[above] at (e.north) {15/16};
+			      \node[above left] at (b.north) {8/11};
+			      \node[above] at (d.north) {1/4};
+			      \node[below] at (g.south) {5/6};
+			      \node[left] at (c.west) {9/10};
+			      \node[below] at (h.south) {13/14};
+
+			      \draw[->, >=stealth, line width=1pt, bend left=10] (b) to (a);
+			      \draw[->, >=stealth, line width=1pt, bend left=10] (a) to (b);
+			      \draw[->, >=stealth, line width=1pt, bend left=10] (c) to (b);
+			      \draw[->, >=stealth, line width=1pt, bend left=10] (b) to (c);
+			      \draw[->, >=stealth, line width=1pt] (a) to (c);
+			      \draw[->, >=stealth, line width=1pt] (h) to (c);
+			      \draw[->, >=stealth, line width=1pt] (h) to (g);
+			      \draw[->, >=stealth, line width=1pt] (e) to (c);
+			      \draw[->, >=stealth, line width=1pt] (e) to (g);
+			      \draw[->, >=stealth, line width=1pt] (g) to (f);
+			      \draw[->, >=stealth, line width=1pt, bend left=10] (d) to (f);
+			      \draw[->, >=stealth, line width=1pt, bend left=10] (f) to (d);
+		      \end{tikzpicture}
+	      \end{center}
+
+	      Теперь объединить вершины, принадлежащие одному дереву
+	      в дереве поиска в компоненты связности.
+	      В итоговом конденсате графа будут
+	      следующие вершины:
+	      \begin{itemize}
+		      \item $A: \{a, b, c\}$
+		      \item $D: \{d, f\}$
+		      \item $E: \{e\}$
+		      \item $G: \{g\}$
+		      \item $H: \{h\}$
+	      \end{itemize}
+
+	      Граф:
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[draw, circle] (A) at (1,3) {A};
+			      \node[draw, circle] (D) at (6,0) {D};
+			      \node[draw, circle] (E) at (4,3) {E};
+			      \node[draw, circle] (G) at (3,0) {G};
+			      \node[draw, circle] (H) at (0,0) {H};
+
+			      \draw[->] (H) to (A);
+			      \draw[->] (H) to (G);
+			      \draw[->] (E) to (G);
+			      \draw[->] (E) to (A);
+			      \draw[->] (G) to (D);
+		      \end{tikzpicture}
+	      \end{center}
+
+	\item Для определения числа прямых рёбер воспользуемся
+	      следующим свойством времени открытия и закрытия вершин:
+	      группа из $n$ вершин последовательно соединена $n-1$ прямыми
+	      рёбрами, если вершины открыты в существует отрезок времени,
+	      в котором лежат все моменты открытия и закрытия вершин, причём
+	      время открытия первой и закрытия последней приходятся на одну
+	      вершину. Число перекрёстных рёбер равно числу "разрывов" в
+	      этой цепи
+
+	      Алгоритм:
+	      \begin{lstlisting}
+def count_tree_cross_edges(d: list[str | None], f: list[str | None]) -> tuple[int, int]:
+	tree_count = 0
+	cross_count = -1
+	cur_root = None
+
+	for i in range(len(d)):
+		if cur_root is None:
+			cross_count += 1
+			cur_root = d[i]
+		elif cur_root == f[i]:
+			cur_root = None
+		elif d[i] is not None:
+			tree_count += 1
+
+	return tree_count, cross_count
+		  \end{lstlisting}
+
+	      Сложность - $O(\left| V \right|)$, так как длины массивов
+	      $d$ и $f$ равны удвоенному числу вершин в графе.
+
+	\item Алгоритм Дейкстры рассматривает каждую вершину ровно
+	      один раз, когда до соответствующей вершины доходит
+	      очередь. Это равносильно тому, что у каждой вершины ровно
+	      один родитель (у корня - нет родителя). Следовательно,
+	      в итоговом графе будет ровно $n-1$ рёбер, а значит,
+	      этот граф будет деревом.
+
+	\item \begin{enumerate}
+		      \item
+		            Предлагаемый алгоритм - алгоритм поиска компонент
+		            сильной связности в данном графе:
+		            \begin{lstlisting}
+def inverse_graph(graph: dict[str, list[str]]) -> dict[str, list[str]]:
+	reversed_graph = {}
+
+	for node in graph:
+		for neighbor in graph[node]:
+			if neighbor not in reversed_graph:
+				reversed_graph[neighbor] = list()
+			reversed_graph[neighbor].append(node)
+
+	return reversed_graph
+
+
+def _dfs(
+	graph: dict[str, list[str]],
+	node: str,
+	visited: set[str],
+	start: list[str],
+	finish: list[str],
+):
+	visited.add(node)
+	start.append(node)
+	finish.append(None)
+	for neighbor in graph.get(node, []):
+		if neighbor not in visited:
+			_dfs(graph, neighbor, visited, start, finish)
+	start.append(None)
+	finish.append(node)
+
+
+def dfs(graph: dict[str, list[str]]) -> tuple[list[str | None], list[str | None]]:
+	visited = set()
+	start = list()
+	finish = list()
+
+	for node in graph:
+		if node in visited:
+			continue
+		_dfs(graph, node, visited, start, finish)
+
+	return start, finish
+
+
+def graph_condensates(graph: dict[str, list[str]]) -> list[list[str]]:
+	_, _finish = dfs(inverse_graph(graph))
+	order = [node for node in reversed(_finish) if node is not None]
+
+	visited = set()
+	condensates = list()
+
+	start = list()
+	finish = list()
+
+	for node in order:
+		if node in visited:
+			continue
+		_dfs(graph, node, visited, start, finish)
+		condensates.append([n for n in finish if n is not None])
+		start.clear()
+		finish.clear()
+
+	return condensates
+	\end{lstlisting}
+
+		            Сложность алгоритма -
+		            $O(\left| V \right| + \left| E \right|)$,
+		            так как используется инвертирование графа за
+		            $O(\left| V \right| + \left| E \right|)$ и
+		            поиск в глубину на инвертированном графе за
+		            $O(\left| V \right| + \left| E \right|)$.
+		            Этот алгоритм корректен, так как он находит
+		            компоненты сильной связности в графе по построению.
+
+		      \item Для решения этой задачи, рассмотрим граф из
+		            компонент сильной связности, построенный в предыдущем пункте.
+		            этот граф не имеет циклов. Обозначим вершины этого графа
+		            как истоки, если к ним не ведёт ни одно ребро из других
+		            и как стоки, если из них не ведёт ни одно ребро в другие.
+		            Тогда минимальное количество рёбер, которое нужно добавить
+		            до связности графа будет получено путём соединения
+		            стоков и истоков таким образом, чтобы получился один
+		            общий цикл. В случае, если в графе есть подграфы,
+		            имеющие больше одного стока, эти подграфы можно разбить
+		            на графы-пути, начинающиеся с истока и заканчивающиеся
+		            в каждом из стоков. Тогда циклично соединив эти графы,
+		            мы получим связный граф с минимальным числом добавленных рёбер,
+		            равным общему числу стоков.
+
+		            Алгоритм:
+		            \begin{lstlisting}
+def split_graph(graph: Dict[Any, List[Any]]) -> List[Dict[Any, List[Any]]]:
+	components = list()
+	visited = set()
+
+	for root in graph:
+		if root in visited:
+			continue
+
+		stack = [root]
+
+		while stack:
+			if stack[-1] not in graph:
+				components.append(copy(stack))
+			added = False
+			for neighbor in graph.get(stack[-1], []):
+				if neighbor not in visited:
+					stack.append(neighbor)
+					added = True
+					break
+			visited.add(stack[-1])
+
+			if not added:
+				stack.pop()
+
+	return components
+
+
+def add_edges_to_connected(graph: Dict[Any, List[Any]]) -> Dict[Any, List[Any]]:
+	condensates = graph_condensates(graph)
+	if len(condensates) == 1:
+		return graph
+
+	node_to_condensate = dict()
+	condensate_to_node = dict()
+	for idx, condensate in enumerate(condensates):
+		for node in condensate:
+			node_to_condensate[node] = idx
+
+		condensate_to_node[idx] = node
+
+	condensed_graph = dict()
+	for source, neighbors in graph.items():
+		source_condensate = node_to_condensate[source]
+		for neighbor in neighbors:
+			destination_condensate = node_to_condensate[neighbor]
+			if (
+				source_condensate != destination_condensate
+				and destination_condensate
+				not in condensed_graph.get(source_condensate, set())
+			):
+				if source_condensate not in condensed_graph:
+					condensed_graph[source_condensate] = set()
+				condensed_graph[source_condensate].add(
+					destination_condensate
+				)
+
+	condensed_components = split_graph(condensed_graph)
+
+	for i in range(len(condensed_components)):
+		source = condensate_to_node[condensed_components[i - 1][-1]]
+		destination = condensate_to_node[condensed_components[i][0]]
+		if source not in graph:
+			graph[source] = list()
+		graph[source].append(destination)
+
+	return graph
+				\end{lstlisting}
+
+		            Сложность алгоритма - $O(\left| V \right| + \left| E \right|)$.
+		            Первым делом он за $O(\left| V \right| + \left| E \right|)$
+		            находит конденсаты, далее за
+		            $O(\left| V \right| + \left| E \right|)$
+		            он строит граф конденсатов, а затем за
+		            $O(\left| V \right| + \left| E \right|)$
+		            с помощью поиска в глубину он разбивает граф
+		            на графы-пути, и, наконец, за
+		            $O(\left| V \right|)$ он строит новые рёбра
+
+	      \end{enumerate}
+
+	\item Эту задачу можно свести к обходу в глубину
+	      следующим образом:
+	      В каждой комнате в комнате на открытии
+	      ставим метку времени с помощью специфичного
+	      количества монет, соответствующего времени
+	      открытия, в случае закрытия --- вторую
+	      кучу монет. Если во время обхода мы
+	      обнаружили выход, то мы выиграли. Если
+	      поиск завершился в исходной комнате, то
+	      мы проиграли. Для того, чтобы понимать, из
+	      какой комнаты мы пришли в нынешнюю, оставляем
+	      монету в соответствующем коридоре.
+
+	      Сложность алгоритма --	-
+	      $O(\left| V \right| + \left| E \right|) =
+		      O(\left| E \right| + \left| E \right|) =
+		      O(\left| E \right|) = O(m)$,
+
+	\item Для начала отсортируем новые рёбра по убыванию
+	      координаты истока. Далее, итерируемся по рёбрам,
+	      постоянно храня наименьшую координату конца ребра
+	      из тех рёбер, которые мы уже рассмотрели.
+	      Когда мы рассматриваем очередное ребро, добавляем
+	      к количеству компонент расстояние от начала этого
+	      ребра до той наименьшей координаты, если начало
+	      нового ребра ближе к началу графа-пути, затем
+	      обновляем наименьшую координату конца ребра.
+
+	      Алгоритм:
+	      \begin{lstlisting}
+def get_num_condensates(n: int, new_edges: list[tuple[int, int]]) -> int:
+	new_edges.sort(reverse=True)
+
+	n_components = 0
+	cur_head = n
+
+	for edge in new_edges:
+		n_components += max(cur_head - edge[0], 0)
+		cur_head = min(cur_head, edge[1])
+
+	return n_components + cur_head
+		  \end{lstlisting}
+
+	      Сложность алгоритма - $O(m \log m)$, так как
+	      происходит сортировка рёбер, а затем проход по массиву.
+
+	\item Очевидно, что граф с такими свойствами является
+	      множеством цикличных графов, являющихся замкнутыми цепочками
+	      из чередующихся вершин и рёбер чётной длины. Для такого графа
+	      максимальное паросочетание будет состоять из рёбер,
+	      взятых через одно. Такое множество можно получить с
+	      помощью поиска в глубину:
+	      \begin{lstlisting}
+def _dfs(
+    graph: dict[str, list[str]],
+    node: str,
+    matchings: set[tuple[str, str]],
+    visited: set[str],
+    parent_matched: bool = False,
+):
+    visited.add(node)
+
+    for neighbor in graph[node]:
+        if neighbor in visited:
+            continue
+
+        if not parent_matched:
+            matchings.add((node, neighbor))
+
+        _dfs(
+            graph,
+            neighbor,
+            matchings,
+            visited,
+            not parent_matched,
+        )
+
+
+def get_max_matching(graph: dict[str, list[str]]) -> set[tuple[str, str]]:
+    matchings = set()
+    visited = set()
+
+    for node in graph:
+        assert len(graph[node]) == 2
+        if node in visited:
+            continue
+
+        _dfs(graph, node, matchings, visited)
+
+    return matchings
+		  \end{lstlisting}
+
+	      Сложность алгоритма - 
+		  $O(\left| V \right| + \left| E \right|)$.
+\end{enumerate}
+
+\end{document}
+
+
