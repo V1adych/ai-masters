@@ -1,0 +1,338 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[english, russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Algorithms}
+\fancyhead[R]{\thepage}
+
+\title{Algorithms 1 \\ Homework 9}
+\author{Nikita Zagainov}
+\date{\selectlanguage{english}\today}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{gray},
+    backgroundcolor=\color{lightgray!20},
+    frame=single,
+    rulecolor=\color{black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    captionpos=b
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+	\section*{Кратчайшие пути в графах}
+\end{center}
+\begin{enumerate}
+	\item Шаг 0:
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[draw, circle] (e) at (0,2) {e};
+			      \node[draw, circle] (b) at (2,2) {b};
+			      \node[draw, circle] (a) at (4,2) {a};
+			      \node[draw, circle] (d) at (6,2) {d};
+			      \node[draw, circle] (h) at (0,0) {h};
+			      \node[draw, circle] (g) at (3,0) {g};
+			      \node[draw, circle] (f) at (6,0) {f};
+
+			      \node[above] at (e.north) {$0$};
+			      \node[above] at (b.north) {$\infty$};
+			      \node[above] at (a.north) {$\infty$};
+			      \node[above] at (d.north) {$\infty$};
+			      \node[above] at (h.north) {$\infty$};
+			      \node[below] at (g.south) {$\infty$};
+			      \node[below] at (f.south) {$\infty$};
+
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (e) to node[above] {-1} (b);
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (b) to node[above] {4} (a);
+			      \draw[->, >=stealth, line width=1pt] (e) to node[above] {-2} (g);
+			      \draw[->, >=stealth, line width=1pt] (h) to node[below] {-3} (g);
+			      \draw[->, >=stealth, line width=1pt] (g) to node[below] {1} (f);
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (f) to node[left] {2} (a);
+			      \draw[->, bend right=15, >=stealth, line width=1pt] (d) to node[left] {4} (f);
+			      \draw[->, bend right=15, >=stealth, line width=1pt] (f) to node[right] {-3} (d);
+		      \end{tikzpicture}
+	      \end{center}
+
+	      Шаг 1:
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[draw, circle] (e) at (0,2) {e};
+			      \node[draw, circle] (b) at (2,2) {b};
+			      \node[draw, circle] (a) at (4,2) {a};
+			      \node[draw, circle] (d) at (6,2) {d};
+			      \node[draw, circle] (h) at (0,0) {h};
+			      \node[draw, circle] (g) at (3,0) {g};
+			      \node[draw, circle] (f) at (6,0) {f};
+
+			      \node[above] at (e.north) {$0$};
+			      \node[above] at (b.north) {$-1$};
+			      \node[above] at (a.north) {$\infty$};
+			      \node[above] at (d.north) {$\infty$};
+			      \node[above] at (h.north) {$\infty$};
+			      \node[below] at (g.south) {$-2$};
+			      \node[below] at (f.south) {$\infty$};
+
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (e) to node[above] {-1} (b);
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (b) to node[above] {4} (a);
+			      \draw[->, >=stealth, line width=1pt] (e) to node[above] {-2} (g);
+			      \draw[->, >=stealth, line width=1pt] (h) to node[below] {-3} (g);
+			      \draw[->, >=stealth, line width=1pt] (g) to node[below] {1} (f);
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (f) to node[left] {2} (a);
+			      \draw[->, bend right=15, >=stealth, line width=1pt] (d) to node[left] {4} (f);
+			      \draw[->, bend right=15, >=stealth, line width=1pt] (f) to node[right] {-3} (d);
+		      \end{tikzpicture}
+	      \end{center}
+
+	      Шаг 2:
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[draw, circle] (e) at (0,2) {e};
+			      \node[draw, circle] (b) at (2,2) {b};
+			      \node[draw, circle] (a) at (4,2) {a};
+			      \node[draw, circle] (d) at (6,2) {d};
+			      \node[draw, circle] (h) at (0,0) {h};
+			      \node[draw, circle] (g) at (3,0) {g};
+			      \node[draw, circle] (f) at (6,0) {f};
+
+			      \node[above] at (e.north) {$0$};
+			      \node[above] at (b.north) {$-1$};
+			      \node[above] at (a.north) {$3$};
+			      \node[above] at (d.north) {$\infty$};
+			      \node[above] at (h.north) {$\infty$};
+			      \node[below] at (g.south) {$-2$};
+			      \node[below] at (f.south) {$-1$};
+
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (e) to node[above] {-1} (b);
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (b) to node[above] {4} (a);
+			      \draw[->, >=stealth, line width=1pt] (e) to node[above] {-2} (g);
+			      \draw[->, >=stealth, line width=1pt] (h) to node[below] {-3} (g);
+			      \draw[->, >=stealth, line width=1pt] (g) to node[below] {1} (f);
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (f) to node[left] {2} (a);
+			      \draw[->, bend right=15, >=stealth, line width=1pt] (d) to node[left] {4} (f);
+			      \draw[->, bend right=15, >=stealth, line width=1pt] (f) to node[right] {-3} (d);
+		      \end{tikzpicture}
+	      \end{center}
+
+	      Шаг 3:
+	      \begin{center}
+		      \begin{tikzpicture}
+			      \node[draw, circle] (e) at (0,2) {e};
+			      \node[draw, circle] (b) at (2,2) {b};
+			      \node[draw, circle] (a) at (4,2) {a};
+			      \node[draw, circle] (d) at (6,2) {d};
+			      \node[draw, circle] (h) at (0,0) {h};
+			      \node[draw, circle] (g) at (3,0) {g};
+			      \node[draw, circle] (f) at (6,0) {f};
+
+			      \node[above] at (e.north) {$0$};
+			      \node[above] at (b.north) {$-1$};
+			      \node[above] at (a.north) {$1$};
+			      \node[above] at (d.north) {$-4$};
+			      \node[above] at (h.north) {$\infty$};
+			      \node[below] at (g.south) {$-2$};
+			      \node[below] at (f.south) {$-1$};
+
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (e) to node[above] {-1} (b);
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (b) to node[above] {4} (a);
+			      \draw[->, >=stealth, line width=1pt] (e) to node[above] {-2} (g);
+			      \draw[->, >=stealth, line width=1pt] (h) to node[below] {-3} (g);
+			      \draw[->, >=stealth, line width=1pt] (g) to node[below] {1} (f);
+			      \draw[->, bend left=15, >=stealth, line width=1pt] (f) to node[left] {2} (a);
+			      \draw[->, bend right=15, >=stealth, line width=1pt] (d) to node[left] {4} (f);
+			      \draw[->, bend right=15, >=stealth, line width=1pt] (f) to node[right] {-3} (d);
+		      \end{tikzpicture}
+	      \end{center}
+
+	      После 4-го шага значения в вершинах графа
+	      изменяться не будут
+
+	\item Можно использовать алгоритм Беллмана-Форда,
+	      но так как про граф известно, что все рёберные длины
+	      не превышают $k$, то всего итраций понадобится $k + 1$
+	      (ещё одна итерация для проверки наличия циклов отрицательного).
+
+	      Алгоритм:
+	      \begin{lstlisting}
+def update_dist(
+    graph: dict[object, list[tuple[float, object]]],
+    dist: dict[object, float],
+):
+    for node, neighbors in graph.items():
+        for weight, neighbor in neighbors:
+            if dist[node] + weight < dist[neighbor]:
+                dist[neighbor] = dist[node] + weight
+                return True
+    return False
+
+
+def k_bellman_ford(
+    graph: dict[object, list[tuple[float, object]]],
+    source: object,
+    k: int,
+) -> dict[object, float]:
+    # assume graph is strongly connected
+    dist = {node: float("inf") for node in graph}
+    dist[source] = 0
+    for _ in range(k):
+        changed = update_dist(graph, dist)
+
+        if not changed:
+            return dist
+
+    changed = update_dist(graph, dist)
+
+    if changed:
+        raise ValueError("Negative cycle detected")
+
+    return dist
+          \end{lstlisting}
+
+	      Сложность алгоритма $O(k |E|)$, так как
+	      на каждой из $k$ итераций происходит обновление
+	      всех $|E|$ рёбер.
+
+	\item Для любой вершины дерева её независимым множеством
+	      будут те вершины, которые расположены на уровне
+	      такой же чётности, как и эта вершина (например, для корня на
+	      уровне 0 - все вершины на четных уровнях). Это можно доказать
+	      рекурсивным раскрашиванием вершин дерева в два цвета:
+	      независимо от того, с какой вершины начать, можно покрасить
+	      всех соседей каждой вершины в один цвет, отличный от цвета
+	      самой вершины, в противном случае в дереве есть цикл.
+
+	      Тогда нам нужно рассмотреть только два множества вершин:
+	      на четных уровнях и на нечетных.
+
+	      Алгоритм:
+	      \begin{lstlisting}
+from collections import deque
+
+
+def find_largest_independent_set(tree: dict[object, list[object]]) -> set[object]:
+    even = set()
+    odd = set()
+
+    start_node = next(iter(tree))
+    even.add(start_node)
+
+    queue = deque([(start_node, None, 0)])
+    while len(queue) > 0:
+        node, parent, level = queue.popleft()
+
+        if level == 0:
+            even.add(node)
+        else:
+            odd.add(node)
+
+        for child in tree[node]:
+            if child == parent:
+                continue
+
+            queue.append((child, node, (level + 1) % 2))
+
+            if child in even or child in odd:
+                raise ValueError("Graph is not a tree")
+
+    if len(even) > len(odd):
+        return even
+    return odd
+    \end{lstlisting}
+	      Сложность - $O(|V| + |E|) = O(|V|)$, так как алгоритм обходит дерево,
+	      посещая каждую вершину один раз.
+
+	\item За $O(|V| + |E|)$ задачу можно свести к обычному
+	      поиску в ширину, совмещая вершины, соединённые
+	      ребром с весом $0$, далее за $O(|V| + |E|)$ можно
+	      найти кратчайший путь от $s$ до каждой вершины
+	      алгоритмом \texttt{BFS}.
+
+	      Алгоритм:
+	      \begin{lstlisting}
+from collections import deque
+
+
+def get_graph_groups(
+	graph: dict[object, list[tuple[int, object]]],
+) -> dict[object, set[object]]:
+	united_nodes = {}
+
+	for node, neighbors in graph.items():
+		for weight, neighbor in neighbors:
+			if weight == 0:
+				united_nodes[node] = neighbor
+				united_nodes[neighbor] = node
+
+	grouped_nodes = {}
+	for node, neighbor in united_nodes.items():
+		grouped_nodes[node] = grouped_nodes.get(node, set([node])).union([neighbor])
+
+	return grouped_nodes
+
+
+def shortest_distances(
+	graph: dict[object, list[tuple[int, object]]],
+	source: object,
+) -> dict[object, int]:
+	groups = get_graph_groups(graph)
+
+	distances = {}
+	queue = deque([(source, 0)])
+
+	while queue:
+		node, cur_len = queue.popleft()
+
+		if node in distances:
+			continue
+
+		for subnode in groups.get(node, set([node])):
+			distances[subnode] = cur_len
+
+		for weight, neighbor in graph[node]:
+			if weight == 0:
+				continue
+			if weight != 1:
+				raise ValueError("Graph does not satisfy the requirements")
+
+			if neighbor in distances:
+				continue
+
+			queue.append((neighbor, cur_len + 1))
+
+	return distances
+	\end{lstlisting}
+	      Сложность - $O(|V| + |E|)$, так как сначала алгоритм обходит
+	      все вершины и рёбра графов за $O(|V| + |E|)$ для поиска
+	      групп вершин, соединённых рёбрами с весом $0$, а затем
+	      запускает обход в ширину для поиска кратчайших путей от
+	      данной вершины до всех остальных.
+
+\end{enumerate}
+
+\end{document}
+
+
