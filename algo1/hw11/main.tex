@@ -1,0 +1,219 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage[english, russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tikz}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Algorithms}
+\fancyhead[R]{\thepage}
+
+\title{Algorithms 1 \\ Homework 11}
+\author{Nikita Zagainov}
+\date{\selectlanguage{english}\today}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    stringstyle=\color{red},
+    commentstyle=\color{gray},
+    backgroundcolor=\color{lightgray!20},
+    frame=single,
+    rulecolor=\color{black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    captionpos=b
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+	\section{Кратчайшие пути. Разные задачи.}
+\end{center}
+\begin{enumerate}
+	\item Для начала для каждой вершины графа определим
+	      набор из $k$ пар рёбер различного цвета. Тогда
+	      при входе в эту вершину через одно ребро, мы выходим
+	      через другое ребро другого цвета. Тогда, начиная с произвольной
+	      вершины, мы гарантированно сможем пройти эйлеров цикл, заканчивающийся
+	      в этой же вершине. Если этот цикл не обходит все вершины, то
+	      выбираем новую вершину, принадлежащую циклу, и повторяем процедуру,
+	      причём новая выбранная вершина теперь будет началом эйлерова цикла.
+	      Эйлеров цикл существует в любом графе, у которого степень каждой вершины
+	      чётная. Тогда решение цикл будет существовать только в том
+	      случае, если существует такое распределение на пары. Очевидно, что
+	      оно существует, если для каждой вершины не больше $k$ рёбер
+	      одного цвета. Если это выполняется, то мы можем их спарить
+	      следующим образом: В список длины $k$ через одно свободное место
+	      ставим сначала самые частые цвета, далее - вторые по частоте
+	      и так далее. Это гарантирует, что у нас не будет пар одного цвета,
+	      так как тот факт, что каждого цвета у нас не более $k$, так
+	      что в списке длины $2k$ они не могут стоять рядом. Далее,
+	      просто пройдём по всем рёбрам, используя алгоритм Хиерхольцера.
+
+	      Алгоритм:
+	      \begin{lstlisting}
+def compute_pairs(
+    node: object,
+    graph: dict[object, list[tuple[object, object]]],
+    pairs: dict[object, dict[object, object]],
+):
+    color_lists = {}
+    for neighbor, color in graph[node]:
+        color_lists.setdefault(color, []).append(neighbor)
+    node_cycle = [None] * len(graph[node])
+    ptr = 0
+    while color_lists:
+        most_frequent_color = max(color_lists, key=lambda x: len(color_lists[x]))
+        if len(color_lists[most_frequent_color]) > len(graph[node]) // 2:
+            raise ValueError("No euler cycle")
+        for neighbor in color_lists[most_frequent_color]:
+            node_cycle[ptr] = (neighbor, most_frequent_color)
+            ptr = ptr + 2
+            if ptr >= len(graph[node]):
+                ptr = 1
+        del color_lists[most_frequent_color]
+    node_pairings = {}
+    n = len(node_cycle)
+    for i in range(0, n, 2):
+        a = node_cycle[i]
+        b = node_cycle[i + 1]
+        node_pairings[a] = b
+        node_pairings[b] = a
+    pairs[node] = node_pairings
+
+
+def euler_cycle(graph: dict[object, list[tuple[object, object]]]) -> list[object]:
+    pairs = {}
+    for node in graph:
+        if node not in pairs:
+            compute_pairs(node, graph, pairs)
+    path = []
+
+    def visit(node):
+        print(f"we are in {node}, our path so far is {path}, we need to inspect the following pairs: {list(pairs[node].keys())}")
+        while pairs[node]:
+            new_node, color = next(iter(pairs[node].keys()))
+            pairs[node].pop((new_node, color))
+            pairs[new_node].pop((node, color))
+            print(f"we are in node {node}, going to {new_node} through {color}")
+            visit(new_node)
+        path.append(node)
+        print(f"we are in {node}, our path so far is {path}, we finished visiting our pairs")
+
+    start_node = next(iter(graph))
+    visit(start_node)
+    if any(pairs[node] for node in pairs):
+        raise ValueError("No euler cycle")
+    return path[::-1]
+    \end{lstlisting}
+	      Сложность алгоритма --- $O(|E|) = O(|V| + |E|)$. Сначала
+	      для каждой вершины строим список пар за линейное время,
+	      сумма длин всех этих списков --- $O(|E|)$. Далее, проходим
+	      алгоритмом Хиерхольцера, который работает за $O(|E|)$, так как
+	      гарантированно обходит каждое ребро один раз.
+
+	\item Так как все рёбра в графе имеют вес, ограниченный сверху $W$,
+	      то максимальное расстояние между вершинами графа не превосходит
+	      $W(|V| - 1)$. Тогда можно хранить $W(|V| - 1)$ множеств, где $i$-е множество
+	      содержит вершины, расстояние до которых от данной равно $i$. Чтобы
+	      рассчитать расстояние до каждой вершины, для начала инициализируем
+	      первое множество с начальной вершиной (расстояние равно 0), далее
+	      проходим по этим множествам, на каждом шаге для каждой из вершин множества
+	      считаем расстояние до её соседних вершин, и соседние вершины добавляем
+	      в соответствующее множество (если оно уже не лежит в множестве, меньшем
+	      по порядку). Это гарантирует, что мы найдём кратчайшие пути до каждой
+	      из вершин, так как порядок рассмотрения вершин в нём аналоен порядку
+	      алгоритма Дейкстры: на каждой итерации мы вибираем вершину с
+	      наименьшим расстоянием до неё от истока.
+
+	      Алгоритм:
+	      \begin{lstlisting}
+def shortest_paths(
+    node: object,
+    graph: dict[object, list[tuple[object, int]]],
+    w: int,
+) -> dict[object, tuple[int, list[object]]]:
+    nodes = set()
+    for key in graph:
+        nodes.add(key)
+        for edge in graph[key]:
+            nodes.add(edge[0])
+
+    sets = [set() for _ in range(w * (len(nodes) - 1) + 1)]
+    sets[0].add(node)
+
+    shortest_paths = {node: (0, [node])}
+
+    for i in range(len(sets)):
+        for node in sets[i]:
+            for neighbor, weight in graph[node]:
+                if neighbor not in shortest_paths:
+                    sets[i + weight].add(neighbor)
+                    shortest_paths[neighbor] = (
+                        i + weight,
+                        shortest_paths[node][1] + [neighbor],
+                    )
+                elif i + weight < shortest_paths[neighbor][0]:
+                    sets[shortest_paths[neighbor][0]].remove(neighbor)
+                    sets[i + weight].add(neighbor)
+                    shortest_paths[neighbor] = (
+                        i + weight,
+                        shortest_paths[node][1] + [neighbor],
+                    )
+
+    return shortest_paths
+    \end{lstlisting}
+
+	\item
+	      \begin{itemize}
+		      \item[1.] В оригинальном алгоритме Дейкстры мы инициализируем кучу
+			      с единственной вершиной с расстоянием 0, и остальными с
+			      расстоянием $\infty$. Вершины с $\infty$ меняются только
+			      после релаксации, так что если изменить алгоритм релаксации так,
+			      что он добавляет вершину в кучу, если её там не было, то мы можем
+			      не инициализировать кучу этими вершинами, так как алгоритм
+			      релаксации вставляет недостающие вершины в кучу.
+
+		      \item[2.] Модифицированный алгоритм может принимать во внимание
+			      некоторые вершины по несколько раз, так что в случае, когда в
+			      результате релаксации алгоритм обнаруживает, что какая-то вершина
+			      с посчитанным расстоянием понизила своё значение, она будет добавлена
+			      в очередь снова, и расстояния до них будут пересчитаны. Если же
+			      в графе есть негативные циклы, то алгоритм не остановится, и будет
+			      бесконечно уменьшать их расстояния. Если же негативных циклов нет,
+			      этот алгоритм найдёт минимальные расстояния до всех вершин.
+			      Сложность модифицированного алгоритма Дейкстры при рёбрах отрицательного
+			      веса --- $O(|V|^2 \log |V| + |E||V|)$, так как данный алгоритм должен
+			      в худшем случае проверить самые длинные рёберные пути,
+			      равные $O(|V|)$ для каждой из $O(|V|)$ вершин, а это значит,
+			      что каждая вершина может добавляться в кучу $O(|V|)$ раз, а
+			      рёбра могут быть проверены суммарно для всех вершин $O(|E|)$
+			      раз.
+
+		      \item[3.] Для того, чтобы обнаруживать отрицательные циклы, можно
+			      воспользоваться идеей алгоритма Беллмана-Форда и останавливать алгоритм,
+			      если какая-то вершина была релаксирована более $|V| - 1$ раз.
+	      \end{itemize}
+
+\end{enumerate}
+\end{document}
+
+
