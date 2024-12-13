@@ -5,5 +5,6 @@
 *.fls
 *.out
 *.csv
+*.parquet
 __pycache__
 data/
