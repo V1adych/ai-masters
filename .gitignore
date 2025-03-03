@@ -8,3 +8,4 @@
 *.parquet
 __pycache__
 data/
+abt/hw3/03-metrics-hw.ipynb
