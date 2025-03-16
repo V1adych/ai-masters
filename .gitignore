@@ -8,5 +8,7 @@
 *.parquet
 __pycache__
 data/
+res-vis/
 abt/hw3/03-metrics-hw.ipynb
 .pytest_cache
+abt/hw5/experiments_sample.json
