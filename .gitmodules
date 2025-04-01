@@ -1,0 +1,3 @@
+[submodule "big_data_2025/repo"]
+	path = big_data_2025/repo
+	url = git@github.com:V1adych/ai-masters-bigdata.git
