@@ -1,0 +1,155 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}  % For Cyrillic fonts
+\usepackage[utf8]{inputenc}  % For UTF-8 encoding
+\usepackage[russian,english]{babel}  % For Russian language support
+\usepackage{amssymb}
+\usepackage[margin=2cm]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{hyperref}
+
+\lstset{
+	language=Python,
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue},
+	stringstyle=\color{red},
+	commentstyle=\color{gray},
+	backgroundcolor=\color{lightgray!20},
+	frame=single,
+	rulecolor=\color{black},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=10pt,
+	showspaces=false,
+	showstringspaces=false,
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=4,
+	captionpos=b
+}
+
+\title{Математическая статистика \\ Домашнее задание 3}
+\author{Никита Загайнов}
+
+\date{Май 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{enumerate}
+	\item \begin{enumerate}
+		      \item
+		            Воспользуемся критерием Пирсона для проверки гипотезы о том, что вероятность прибытия пациента в любой из дней недели равномерна. Постановка теста:
+
+		            \begin{equation*}
+			            \begin{aligned}
+				            H_0 & : p_i = \frac{1}{7} \text{, } \forall i \in [1,7]    \\
+				            H_1 & : p_i \neq \frac{1}{7} \text{, } \exists i \in [1,7]
+			            \end{aligned}
+		            \end{equation*}
+
+		            Статистика теста:
+		            \[
+			            \chi^2 = n \sum_{i=1}^{7} \frac{\left( \frac{\nu_i}{n} - p_i \right)^2}{p_i}
+		            \]
+		            где $n$ - общее количество наблюдений, $\nu_i$ - количество наблюдений в $i$-й категории. Если нулевая гипотеза верна, то $\chi^2 \sim \chi^2_6$, в противном случае $\chi^2$ стремится к бесконечности с ростом $n$. Тогда тест будет проводиться следующим образом:
+		            \begin{equation*}
+			            \begin{aligned}
+				            \chi^2 \leq \chi^2_6(0.95) & \Rightarrow \text{отвергаем } H_1 \\
+				            \chi^2 > \chi^2_6(0.95)    & \Rightarrow \text{отвергаем } H_0
+			            \end{aligned}
+		            \end{equation*}
+
+		            \[
+			            \chi^2 \approx 15.389 > \chi^2_6(0.95) \approx 12.592 \Longrightarrow \text{отвергаем } H_0
+		            \]
+
+		      \item Код решения:
+		            \begin{lstlisting}
+import numpy as np
+from scipy import stats
+
+
+nu = np.array([36, 53, 35, 26, 30, 44, 28])
+n = np.sum(nu)
+m = len(nu)
+p0 = np.ones(m) / m
+alpha = 0.05
+
+statistic = n * np.sum((nu / n - p0) ** 2 / p0)
+
+print(f"Criterion statistic: {statistic:.3f}")
+
+quantile = stats.chi2.ppf(1 - alpha, m - 1)
+
+print(f"Quantile of Chi squared distribution: {quantile:.3f}")
+
+if statistic > quantile:
+    print("Reject the null hypothesis")
+else:
+    print("Reject the alternative hypothesis")
+                    \end{lstlisting}
+
+		            Вывод:
+		            \begin{lstlisting}
+Criterion statistic: 15.389
+Quantile of Chi squared distribution: 12.592
+Reject the null hypothesis
+                    \end{lstlisting}
+	      \end{enumerate}
+
+	\item
+	      Найдём ОМП для параметра $\theta$. Функция правдоподобия:
+	      \[
+		      L(\theta) = ((1 - \theta)^2)^{\frac{n}{4}} (2\theta(1 - \theta))^{\frac{n}{4}} (\theta^2)^{\frac{n}{2}}
+	      \]
+	      Возьмём логарифм:
+	      \[
+		      \log L(\theta) = \frac{n}{2} \log(1 - \theta) + \frac{n}{4} \log(2\theta(1 - \theta)) + n \log(\theta)
+	      \]
+	      Возьмём производную и приравняем к нулю:
+	      \[
+		      \frac{d \log L(\theta)}{d \theta} = -\frac{n}{2(1 - \theta)} + \frac{n(1 - 2\theta)}{4\theta(1 - \theta)} + \frac{n}{\theta} = 0
+	      \]
+	      Решив уравнение, получаем:
+	      \[
+		      \theta = \frac{5}{8}
+	      \]
+
+	      Теперь проверим гипотезу о том, что выборка следует полученному распределению:
+	      \begin{equation*}
+		      \begin{aligned}
+			      H_0 & : p = \begin{bmatrix}
+				                  \left(\frac{3}{8}\right)^2        \\[5pt]
+				                  2\cdot\frac{3}{8}\cdot\frac{5}{8} \\[5pt]
+				                  \left(\frac{5}{8}\right)^2
+			                  \end{bmatrix} = \begin{bmatrix}
+				                                  \frac{9}{64}  \\[5pt]
+				                                  \frac{30}{64} \\[5pt]
+				                                  \frac{25}{64}
+			                                  \end{bmatrix} \\
+			      H_1 & : p \neq \begin{bmatrix}
+				                     \frac{9}{64}  \\[5pt]
+				                     \frac{30}{64} \\[5pt]
+				                     \frac{25}{64}
+			                     \end{bmatrix}
+		      \end{aligned}
+	      \end{equation*}
+
+	      Воспользуемся критерием Пирсона:
+	      \[
+		      \chi^2 = n \sum_{i=1}^{3} \frac{\left( \frac{\nu_i}{n} - p_i \right)^2}{p_i} \approx 27.876 > \chi^2_2(0.95) \approx 5.991 \Longrightarrow \text{отвергаем } H_0
+	      \]
+
+	\item
+		Решение задачи находится в блокноте во вложении
+
+\end{enumerate}
+
+
+\end{document}
