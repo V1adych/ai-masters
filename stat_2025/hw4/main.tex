@@ -1,0 +1,191 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[T2A]{fontenc}  % For Cyrillic fonts
+\usepackage[utf8]{inputenc}  % For UTF-8 encoding
+\usepackage[russian,english]{babel}  % For Russian language support
+\usepackage{amssymb}
+\usepackage[margin=2cm]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{hyperref}
+
+\lstset{
+	language=Python,
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue},
+	stringstyle=\color{red},
+	commentstyle=\color{gray},
+	backgroundcolor=\color{lightgray!20},
+	frame=single,
+	rulecolor=\color{black},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=10pt,
+	showspaces=false,
+	showstringspaces=false,
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=4,
+	captionpos=b
+}
+
+\title{Математическая статистика \\ Домашнее задание 4}
+\author{Никита Загайнов}
+
+\date{Май 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{enumerate}
+	\item Запишем функцию $l_n(\theta)$:
+	      \[
+		      l_n(\theta) = \frac{1}{n} \sum_{t=1}^{n} y_{t-2} (y_t - \theta y_{t-1})
+	      \]
+
+	      по закону больших чисел с сильным перемешиванием, эта величина сходится по вероятности к следующей величине:
+
+	      \[
+		      l_n(\theta) \xrightarrow{p} \mathbb{E} [y_0 (y_2 - \theta y_1)] = \Lambda(\theta, \gamma)
+	      \]
+
+	      Общий вид функции $\Lambda(\theta, \gamma)$
+
+	      \begin{equation*}
+		      \begin{aligned}
+			      \Lambda(\theta, \gamma) & =                                                                                    \\
+			                              & (1 - \gamma)^3 \mathbb{E} [u_0 (u_2 - \theta u_1)] +                                 \\
+			                              & \gamma (1 - \gamma)^2 \mathbb{E} [(u_0 + \xi_0) (u_2 - \theta u_1)]         +        \\
+			                              & \gamma (1 - \gamma)^2 \mathbb{E} [u_0 (u_2 + \xi_2 - \theta u_1)] +                  \\
+			                              & \gamma (1 - \gamma)^2 \mathbb{E} [u_0 (u_2 - \theta u_1 - \theta \xi_1)] +           \\
+			                              & \gamma^2 (1 - \gamma) \mathbb{E} [(u_0 + \xi_0) (u_2 + \xi_2 - \theta u_1)] +        \\
+			                              & \gamma^2 (1 - \gamma) \mathbb{E} [u_0 (u_2 + \xi_2 - \theta u_1 - \theta \xi_1)] +   \\
+			                              & \gamma^2 (1 - \gamma) \mathbb{E} [(u_0 + \xi_0) (u_2 - \theta u_1 - \theta \xi_1)] + \\
+			                              & \gamma^3  \mathbb{E} [(u_0 + \xi_0) (u_2 + \xi_2 - \theta u_1 - \theta \xi_1)]       \\
+		      \end{aligned}
+	      \end{equation*}
+
+	      Проверим свойства этой функции:
+
+	      \[
+		      \Lambda(\beta, 0) = \mathbb{E} [u_0 (u_2 - \beta u_1)] = \mathbb{E} [u_0 \varepsilon_2] = 0
+	      \]
+
+	      Так как она полиномиальна относительно $\theta$ и $\gamma$, так что частные производные по ним существуют
+
+	      \[
+		      \lambda(\beta) = \frac{\partial \Lambda(\theta, \gamma)}{\partial \theta}(\beta, 0) = -\mathbb{E} [u_0 u_1] = -u_0^2 \beta - u_0 \mathbb{E}
+		      [\varepsilon_0] = -u_0^2 \beta \neq 0
+	      \]
+
+	      \begin{equation*}
+		      \begin{aligned}
+			      \frac{\partial \Lambda(\theta, \gamma)}{\partial \gamma}(\beta, 0) = &                                              &                                                        \\
+			      -                                                                    & 3 u_0 \mathbb{E} [\varepsilon_2] +           &                                                        \\
+			                                                                           & \mathbb{E} [\varepsilon_2(u_0 + \xi_0)] +    &                                                        \\
+			                                                                           & u_0 \mathbb{E} [\varepsilon_2+ \xi_2] +      &                                                        \\
+			                                                                           & u_0 \mathbb{E} [\varepsilon_2 - \beta \xi_1] &                                                        \\
+			                                                                           &                                              & = u_0 \mathbb{E} [\xi_2] -\beta u_0 \mathbb{E} [\xi_1]
+		      \end{aligned}
+	      \end{equation*}
+
+	      \[
+		      \mathrm{IF}(\theta, \mu_{\xi}) =
+		      (\lambda(\beta))^{-1} \frac{\partial \Lambda(\theta, \gamma)}{\partial \gamma}(\beta, 0) =
+		      \frac{\beta \mathbb{E} [\xi_1] - \mathbb{E} [\xi_2]}{u_0 \beta} =
+		      \frac{(\beta - 1) \mathbb{E} [\xi_1]}{\beta u_0}
+	      \]
+
+	      Значение чувствительности:
+
+	      \[
+		      \mathrm{GES}(\theta, \mathcal{M}_{\gamma}) =
+		      \sup_{\mu_{\gamma} \in \mathcal{M}_{\gamma}}
+		      \left| \mathrm{IF}(\theta, \mu_{\gamma}) \right| =
+		      \infty
+	      \]
+
+	      Так как нет ограничений на $\mathbb{E} [\xi_1]$. Следовательно, оценка не робастна.
+
+	\item
+	      \[
+		      l_n(\theta) = \frac{1}{n} \sum_{t=1}^n \psi(y_t - \theta)
+	      \]
+
+	      По закону больших чисел сходится к
+
+	      \[
+		      l_n(\theta) \xrightarrow{p} \mathbb{E} [\psi(y_0 - \theta)] =
+		      \Lambda(\theta, \gamma)
+	      \]
+
+	      Общий вид функции $\Lambda(\theta, \gamma)$
+
+	      \begin{equation*}
+		      \begin{aligned}
+			      \Lambda(\theta, \gamma) = &                                                \\
+			                                & (1 - \gamma) \mathbb{E} [\psi(u_0 - \theta)] + \\
+			                                & \gamma \mathbb{E} [\psi(u_0 + \xi_0 - \theta)]
+		      \end{aligned}
+	      \end{equation*}
+
+	      Проверим свойства этой функции:
+
+	      \begin{align}
+		      \Lambda(\alpha,0)  = & \notag                                                                                    \\
+		                           & \mathbb{E} [\psi(u_0 - \alpha)] = \notag                                                  \\
+		                           & \mathbb{E} [\psi(\varepsilon_0)] = \notag                                                 \\
+		                           & \int_{-\infty}^{\infty} \psi(x) g(x) dx = \notag                                          \\
+		                           & \int_{-\infty}^0 \psi(x) g(x) dx + \int_0^{\infty} \psi(x) g(x) dx = \notag               \\
+		                           & \int_{\infty}^0 \psi(-u) g(-u) (-du) + \int_0^{\infty} \psi(x) g(x) dx = \notag           \\
+		                           & \int_0^{\infty} \psi(-u) g(-u) du + \int_0^{\infty} \psi(x) g(x) dx = \label{eq:even_odd} \\
+		      -                    & \int_0^{\infty} \psi(u) g(u) du + \int_0^{\infty} \psi(x) g(x) dx = 0 \notag
+	      \end{align}
+
+	      \ref{eq:even_odd} выполняется, так как $\psi$ - нечётная, а $g$ - чётная функции.
+
+	      Также $\Lambda(\theta, \gamma)$ дифференцируема по $\theta$ и $\gamma$, так как $\psi$ дифференцируема на всей области определения, и $\Lambda(\theta, \gamma)$ полиномиальна относительно $\gamma$.
+
+	      \[
+		      \lambda(\alpha) =
+		      \frac{\partial \Lambda(\theta, \gamma)}{\partial \theta}(\alpha, 0) =
+		      -\mathbb{E} [\psi'(u_0 - \alpha)] = -\mathbb{E} [\psi'(\varepsilon_0)] \neq 0
+	      \]
+
+	      Так как $\psi$ строго возрастает и её производная строго положительна на всей области определения
+
+	      \begin{equation*}
+		      \begin{aligned}
+			      \frac{\partial \Lambda(\theta, \gamma)}{\partial \gamma}(\alpha, 0) = &                                                                                \\
+			                                                                            & -\mathbb{E} [\psi(u_0 - \alpha)] + \mathbb{E} [\psi(u_0 + \xi_0 - \alpha)] =   \\
+			                                                                            & -\mathbb{E} [\psi(\varepsilon_0)] + \mathbb{E} [\psi(\varepsilon_0 + \xi_0)] = \\
+			                                                                            & \mathbb{E} [\psi(\varepsilon_0 + \xi_0)]
+		      \end{aligned}
+	      \end{equation*}
+
+	      \[
+		      \mathrm{IF}(\theta, \mu_{\xi}) =
+		      (\lambda(\theta))^{-1} \frac{\partial \Lambda(\theta, \gamma)}{\partial \gamma}(\alpha, 0) =
+		      -\frac{\mathbb{E} [\psi(\varepsilon_0 + \xi_0)]}{\mathbb{E} [\psi'(\varepsilon_0)]}
+	      \]
+
+	      Значение чувствительности:
+
+	      \[
+		      \mathrm{GES}(\theta, \mathcal{M}_{\gamma}) =
+		      \sup_{\mu_{\gamma} \in \mathcal{M}_{\gamma}}
+		      \left| \mathrm{IF}(\theta, \mu_{\gamma}) \right| =
+		      \mathrm{const}
+	      \]
+
+	      Так как $\psi$ ограничена по модулю, следовательно, $\mathbb{E} [\psi(\varepsilon_0 + \xi_0)]$ ограничена, и $\mathbb{E} [\psi'(\varepsilon_0)]$ принимает константное значение. Оценка робастна.
+
+	\item Решение задачи в ноутбуке во вложении.
+
+\end{enumerate}
+
+\end{document}
