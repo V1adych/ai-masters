@@ -6,6 +6,8 @@
 *.out
 *.csv
 *.parquet
+*.bbl
+*.blg
 __pycache__
 data/
 res-vis/

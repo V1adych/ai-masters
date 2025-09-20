@@ -1,0 +1,105 @@
+\documentclass{article}
+\usepackage[pdftex]{graphicx}
+\usepackage{xcolor}
+\usepackage[letterpaper, margin = 2.5cm]{geometry}
+\usepackage[T2A]{fontenc}
+\usepackage[english, russian]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{hyperref, url}
+
+\usepackage{minted}
+
+\usepackage{parskip}
+
+\newcommand{\solution}{\medskip\textbf{Решение}\medskip}
+
+\begin{document}
+
+\title{Домашнее задание 1}
+\date{}
+\author{SMR-2025 AIM, Никита Загайнов \href{https://t.me/V1adych}{@V1adych}}
+\maketitle
+
+\section*{Задача 1}
+
+Покажите, что квадратная матрица $A$ коммутирует с $e^A$.
+
+\solution
+
+\begin{align*}
+    A e^A & = A \left( I + \sum_{k=1}^{\infty} \frac{A^k}{k!} \right) \\
+          & = A + \sum_{k=1}^{\infty} \frac{A^{k+1}}{k!}              \\
+          & = \left( I + \sum_{k=1}^{\infty} \frac{A^k}{k!} \right) A \\
+          & = e^A A
+\end{align*}
+
+\medskip
+
+\section*{Задача 2}
+
+\noindent Рассмотрим модель пружинного маятника на горизонтальной плоскости.
+
+Его вектор состояния имеет вид
+
+$x = \begin{pmatrix}
+        p \\
+        \dot{p}
+    \end{pmatrix}$
+
+Уравнение динамики системы в непрерывном случае таково:
+
+$\dot{x} =  \begin{pmatrix}
+        0             & 1 \\
+        - \frac{k}{m} & 0
+    \end{pmatrix} x$
+
+Пусть симуляция этой системы производится как
+
+$x_{k+1} = x_k + \Delta t \dot{x}_k$
+
+Найдите, как изменяется полная энергия системы за один шаг симуляции.
+
+\solution
+
+Полная энергия системы
+\[
+    E = \frac{1}{2} m \dot{p}^2 + \frac{1}{2} k p^2
+\]
+
+Шаг симуляции
+
+\[
+    \begin{pmatrix}
+        p_{k+1} \\
+        \dot{p}_{k+1}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        p_k \\
+        \dot{p}_k
+    \end{pmatrix}
+    + \Delta t \begin{pmatrix}
+        0             & 1 \\
+        - \frac{k}{m} & 0
+    \end{pmatrix}
+    \begin{pmatrix}
+        p_k \\
+        \dot{p}_k
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        p_k + \Delta t \dot{p}_k \\
+        \dot{p}_k - \frac{k}{m} \Delta t p_k
+    \end{pmatrix}
+\]
+
+Изменение полной энергии системы за один шаг симуляции
+
+\begin{align*}
+    \Delta E & = E_{k+1} - E_k  =                                                                                    \\
+             & = \frac{1}{2} m (\dot{p}_k - \frac{k}{m} \Delta t p_k)^2 + \frac{1}{2} k (p_k + \Delta t \dot{p}_k)^2 \\
+             & - \frac{1}{2} m \dot{p}_k^2 - \frac{1}{2} k p_k^2 \\
+             & = - \Delta t \dot{p}_k p_k + \frac{1}{2m} (k \Delta t p_k)^2 + k \Delta t \dot{p}_k p_k + \frac{k}{2} (\Delta t \dot{p}_k)^2
+\end{align*}
+
+\end{document}
