@@ -1,0 +1,44 @@
+\documentclass{article}
+\usepackage[pdftex]{graphicx}
+\usepackage{xcolor}
+\usepackage[letterpaper, margin = 2.5cm]{geometry}
+\usepackage[T2A]{fontenc}
+\usepackage[english, russian]{babel}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{hyperref, url}
+\hypersetup{
+    colorlinks=true,
+    urlcolor=blue
+}
+
+\usepackage{minted}
+\usepackage{parskip}
+
+\begin{document}
+
+\title{ML3 HW2 Report}
+\date{}
+\author{Nikita Zagainov \href{https://t.me/V1adych}{@V1adych}}
+\maketitle
+
+\href{https://api.wandb.ai/links/v1adych-team/ogmbjgg0}{WandB Report}
+
+\section*{Технические детали}
+\begin{itemize}
+    \item Модель: ResNet18, архитектура взята из torchvision
+    \item Оптимизатор: Muon из \href{https://kellerjordan.github.io/posts/muon/}{этого поста} - реализовал руками, вдохновлялся \href{https://github.com/nil0x9/flash-muon/blob/main/flash_muon/muon.py}{здесь}
+    \item Скедулер: OneCycleLR. \href{https://arxiv.org/pdf/1708.07120}{Мотивация здесь}, имплементацию брал из torch: \href{https://docs.pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.OneCycleLR.html}{OneCycleLR}
+    \item Логирование: логировал метрики локально в TensorBoard. Для репорта загрузил логи в \href{https://api.wandb.ai/links/v1adych-team/ogmbjgg0}{WandB}
+    \item Регуляризации: применял аугментации к тренировочным картинкам, поставил \texttt{weight\_decay=0.01} в оптимизатор 
+\end{itemize}
+
+\section*{Лог экспериментов}
+Единственный эксперимент - обучение модели с вышеприведенными технологиями на 100 эпохах. Не пробовал перебирать гиперпараметры или архитектурные составляющие
+
+\section*{Результат}
+Public Score в соревновании на Kaggle: 0.5255
+
+Полученный опыт: Раньше в небольших экспериментах не использовал никаких инструментов логирования, кроме как \texttt{tqdm} или \texttt{matplotlib}, благодаря этой домашке осознал, насколько просто использовать \texttt{tensorboard} и отныне буду чаще его внедрять в свои эксперименты
+
+
+\end{document}
