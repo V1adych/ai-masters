@@ -1,0 +1,6 @@
+pyspark
+redis
+minio
+boto3
+pyarrow
+

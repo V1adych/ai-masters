@@ -1,0 +1,171 @@
+services:
+  minio:
+    image: minio/minio:latest
+    hostname: minio
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=admin12345
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks:
+      - hw2
+
+  redis:
+    image: redis:7-alpine
+    ports:  
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks:
+      - hw2
+
+  spark-master:
+    build: ./spark
+    image: znv-spark:latest
+    hostname: spark-master
+    environment:
+      - SPARK_LOG_LEVEL=WARN
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=admin12345
+      - AWS_DEFAULT_REGION=us-east-1
+      - S3_ENDPOINT=http://minio:9000
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master", "--host", "spark-master", "--port", "7077", "--webui-port", "8080"]
+    ports:
+      - "7077:7077"
+      - "8080:8080"
+    volumes:
+      - ./spark-jobs:/opt/spark-apps
+    depends_on:
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+    networks:
+      - hw2
+
+  spark-worker-1:
+    build: ./spark
+    image: znv-spark:latest
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=admin12345
+      - AWS_DEFAULT_REGION=us-east-1
+      - S3_ENDPOINT=http://minio:9000
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077", "--cores", "2", "--memory", "2G", "--webui-port", "8081"]
+    depends_on:
+      spark-master:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./spark-jobs:/opt/spark-apps
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+    networks:
+      - hw2
+
+  airflow-webserver:
+    build: ./airflow
+    image: znv-airflow:latest
+    command: ["bash", "-lc", "airflow db init && airflow webserver"]
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__WEBSERVER__AUTHENTICATE=False
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.default
+      - _AIRFLOW_WWW_USER_USERNAME=airflow
+      - _AIRFLOW_WWW_USER_PASSWORD=airflow
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=admin12345
+      - S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=admin12345
+      - AWS_DEFAULT_REGION=us-east-1
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      spark-master:
+        condition: service_healthy
+    ports:
+      - "8088:8080"
+    volumes:
+      - airflow-data:/opt/airflow
+      - ./airflow/dags:/opt/airflow/dags
+      - ./spark-jobs:/opt/spark-apps
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    networks:
+      - hw2
+
+  airflow-scheduler:
+    build: ./airflow
+    image: znv-airflow:latest
+    command: ["bash", "-lc", "airflow db upgrade || airflow db init; airflow users create --username airflow --password airflow --firstname Air --lastname Flow --role Admin --email a@b.c || true; airflow scheduler"]
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__WEBSERVER__AUTHENTICATE=False
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.default
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=admin12345
+      - S3_ENDPOINT_URL=http://minio:9000
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=admin12345
+      - AWS_DEFAULT_REGION=us-east-1
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      airflow-webserver:
+        condition: service_healthy
+      spark-master:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - airflow-data:/opt/airflow
+      - ./airflow/dags:/opt/airflow/dags
+      - ./spark-jobs:/opt/spark-apps
+    networks:
+      - hw2
+
+volumes:
+  minio-data:
+    driver: local
+  airflow-data:
+    driver: local
+
+networks:
+  hw2:
+    driver: bridge
+
