@@ -1,0 +1,15 @@
+numpy
+matplotlib
+torch
+torchvision
+lpips
+torchmetrics
+ipympl
+erqa
+pandas
+scikit-learn
+opencv-python
+mplcursors
+ipykernel
+plotly
+nbformat
