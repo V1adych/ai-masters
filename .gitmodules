@@ -4,3 +4,6 @@
 [submodule "ml_3_2025/2025_ML3"]
 	path = ml_3_2025/2025_ML3
 	url = git@github.com:SergeyMalashenko/2025_ML3.git
+[submodule "control_2025/course_repo"]
+	path = control_2025/course_repo
+	url = git@github.com:kefir8888/smrai2025.git
