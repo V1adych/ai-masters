@@ -7,3 +7,6 @@
 [submodule "control_2025/course_repo"]
 	path = control_2025/course_repo
 	url = git@github.com:kefir8888/smrai2025.git
+[submodule "arl_2026/aimasters_2026"]
+	path = arl_2026/aimasters_2026
+	url = git@github.com:dmitrySorokin/aimasters_2026.git
